@@ -4,7 +4,6 @@ import React, {
   useState,
   useEffect,
   useCallback,
-  useMemo,
   useRef,
 } from 'react';
 import { TOUR_STEPS } from '@/lib/tourSteps';
@@ -29,15 +28,15 @@ function useDebouncedCallback<T extends (...args: unknown[]) => void>(
   callbackRef.current = callback;
 
   return useCallback(
-    ((...args: Parameters<T>) => {
+    (...args: Parameters<T>) => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
         timeoutRef.current = null;
         callbackRef.current(...args);
       }, delay);
-    }) as T,
+    },
     [delay]
-  );
+  ) as T;
 }
 
 export function OnboardingTour({
@@ -193,7 +192,7 @@ export function OnboardingTour({
     if (!visible || !step) return;
     const el = getTargetElement();
     if (!el && currentStep < TOUR_STEPS.length) {
-      goNext();
+      queueMicrotask(() => goNext());
     }
   }, [visible, step, currentStep, getTargetElement, goNext]);
 

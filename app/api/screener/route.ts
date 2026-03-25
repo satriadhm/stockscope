@@ -1,19 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
 import { fetchAllStocks } from '@/lib/services/stockService';
-import { filterStocks, sortStocks } from '@/lib/services/dataTransformService';
 import { enrichStocks } from '@/lib/services/enrichmentService';
-import { FREE_LIMIT } from '@/lib/auth/constants';
-import type { StockFilter } from '@/lib/types';
+import type { EnrichedStock } from '@/lib/types/unified';
+
+type ScreenerSortKey =
+  | 'composite'
+  | 'pe'
+  | 'change'
+  | 'dividendYield'
+  | 'roe';
+
+const SCREENER_SORT_KEYS: ScreenerSortKey[] = [
+  'composite',
+  'pe',
+  'change',
+  'dividendYield',
+  'roe',
+];
+
+function parseScreenerSort(raw: string | null): ScreenerSortKey {
+  const fallback: ScreenerSortKey = 'composite';
+  if (!raw) return fallback;
+  return SCREENER_SORT_KEYS.includes(raw as ScreenerSortKey)
+    ? (raw as ScreenerSortKey)
+    : fallback;
+}
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    const isPremium = session?.user?.plan?.name === 'premium';
-    const isPremiumPlus = session?.user?.plan?.name === 'premium_plus';
-    const isPaidTier = isPremium || isPremiumPlus;
-
     const searchParams = request.nextUrl.searchParams;
 
     // Parse query parameters (supporting both old and new param names for compatibility)
@@ -21,7 +35,7 @@ export async function GET(request: NextRequest) {
     const aiTier = searchParams.get('tier') ? parseInt(searchParams.get('tier')!) : null;
     const minScore = searchParams.get('minScore') ? parseInt(searchParams.get('minScore')!) : null;
     const maxScore = searchParams.get('maxScore') ? parseInt(searchParams.get('maxScore')!) : null;
-    const sortBy = searchParams.get('sortBy') || 'composite';
+    const sortBy = parseScreenerSort(searchParams.get('sortBy'));
     const order = (searchParams.get('order') || 'desc') as 'asc' | 'desc';
     const q = searchParams.get('q');
 
@@ -58,27 +72,31 @@ export async function GET(request: NextRequest) {
 
     // 5. Sort
     const sortOrder = order === 'asc' ? 1 : -1;
-    enriched.sort((a, b) => {
-      let aVal: any;
-      let bVal: any;
+    enriched.sort((a: EnrichedStock, b: EnrichedStock) => {
+      let aVal: number;
+      let bVal: number;
 
-      if (sortBy === 'composite') {
-        aVal = a.scores?.composite ?? -Infinity;
-        bVal = b.scores?.composite ?? -Infinity;
-      } else if (sortBy === 'pe') {
-        aVal = a.pe ?? Infinity;
-        bVal = b.pe ?? Infinity;
-      } else if (sortBy === 'change') {
-        aVal = a.change ?? -Infinity;
-        bVal = b.change ?? -Infinity;
-      } else if (sortBy === 'dividendYield') {
-        aVal = a.dividendYield ?? -Infinity;
-        bVal = b.dividendYield ?? -Infinity;
-      } else if (sortBy === 'roe') {
-        aVal = a.roe ?? -Infinity;
-        bVal = b.roe ?? -Infinity;
-      } else {
-        return 0;
+      switch (sortBy) {
+        case 'composite':
+          aVal = a.scores?.composite ?? -Infinity;
+          bVal = b.scores?.composite ?? -Infinity;
+          break;
+        case 'pe':
+          aVal = a.pe ?? Infinity;
+          bVal = b.pe ?? Infinity;
+          break;
+        case 'change':
+          aVal = a.change ?? -Infinity;
+          bVal = b.change ?? -Infinity;
+          break;
+        case 'dividendYield':
+          aVal = a.dividendYield ?? -Infinity;
+          bVal = b.dividendYield ?? -Infinity;
+          break;
+        case 'roe':
+          aVal = a.roe ?? -Infinity;
+          bVal = b.roe ?? -Infinity;
+          break;
       }
 
       if (aVal < bVal) return -1 * sortOrder;

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 
 const FLAG_COLORS: Record<string, string> = {
   'Insider>75%': '#e76f51',
@@ -11,13 +11,10 @@ const FLAG_COLORS: Record<string, string> = {
 };
 
 export function FlagPill({ flag }: { flag: string }): React.ReactElement {
-  const [show, setShow] = useState(false);
   const flagColor = FLAG_COLORS[flag] || '#444';
 
   return (
     <span
-      onMouseEnter={() => setShow(true)}
-      onMouseLeave={() => setShow(false)}
       style={{
         position: 'relative',
         display: 'inline-block',

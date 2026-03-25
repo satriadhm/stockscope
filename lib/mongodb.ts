@@ -79,16 +79,23 @@ export const stockQueries = {
 
   async find(
     filter: Record<string, unknown>,
-    options: { limit?: number; skip?: number } = {}
+    options: {
+      limit?: number;
+      skip?: number;
+      sort?: Record<string, 1 | -1>;
+    } = {}
   ) {
     const database = await getDB();
-    const { limit = 50, skip = 0 } = options;
-    return database
+    const { limit = 50, skip = 0, sort } = options;
+    let cursor = database
       .collection('stocks')
       .find(filter)
       .skip(skip)
-      .limit(Math.min(limit, 10000))
-      .toArray();
+      .limit(Math.min(limit, 10000));
+    if (sort && Object.keys(sort).length > 0) {
+      cursor = cursor.sort(sort);
+    }
+    return cursor.toArray();
   },
 
   async findByCode(code: string) {

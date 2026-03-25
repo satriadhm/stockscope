@@ -9,9 +9,31 @@ import { getServerSession } from 'next-auth';
 import { fetchStocks, countStocks } from '@/lib/services/stockService';
 import { authOptions } from '@/lib/auth/config';
 import { FREE_LIMIT } from '@/lib/auth/constants';
-import type { Stock, StockFilter, ApiResponse, PaginatedResponse } from '@/lib/types';
+import type { Stock, StockFilter, PaginatedResponse } from '@/lib/types';
 
-interface StocksResponse extends PaginatedResponse<Stock> {}
+const STOCK_SORT_KEYS = new Set<keyof Stock>([
+  'code',
+  'issuer',
+  'tier',
+  'hhi',
+  'floatPercentage',
+  'c1',
+  'c3',
+  'hierarchyLevel',
+  'ownerType',
+  'topHolder',
+  'volume',
+  'lastPrice',
+  'marketCap',
+]);
+
+function parseSortBy(raw: string | null): keyof Stock {
+  const fallback: keyof Stock = 'code';
+  if (!raw) return fallback;
+  return STOCK_SORT_KEYS.has(raw as keyof Stock) ? (raw as keyof Stock) : fallback;
+}
+
+type StocksResponse = PaginatedResponse<Stock>;
 
 export async function GET(request: NextRequest): Promise<NextResponse<StocksResponse>> {
   try {
@@ -30,8 +52,9 @@ export async function GET(request: NextRequest): Promise<NextResponse<StocksResp
       limit = Math.min(limit, FREE_LIMIT);
     }
     const skip = parseInt(searchParams.get('skip') || '0', 10);
-    const sortBy = searchParams.get('sortBy') || 'code';
-    const sortDir = (searchParams.get('sortDir') as 'asc' | 'desc') || 'asc';
+    const sortBy = parseSortBy(searchParams.get('sortBy'));
+    const sortDir =
+      searchParams.get('sortDir') === 'desc' ? 'desc' : 'asc';
 
     // Build filter object with type safety
     const filter: StockFilter = {};
@@ -49,7 +72,11 @@ export async function GET(request: NextRequest): Promise<NextResponse<StocksResp
     }
 
     // Fetch stocks from service
-    const stocks = await fetchStocks(filter, { limit, skip });
+    const stocks = await fetchStocks(filter, {
+      limit,
+      skip,
+      sort: { sortBy, direction: sortDir },
+    });
     const total = await countStocks(filter);
 
     return NextResponse.json<StocksResponse>({

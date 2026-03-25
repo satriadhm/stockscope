@@ -42,7 +42,7 @@ export function ScreenerTab({
   );
 
   useEffect(() => {
-    setPage(1);
+    queueMicrotask(() => setPage(1));
   }, [stocks, sortBy, sortDir]);
 
   const paginatedStocks = useMemo(() => {

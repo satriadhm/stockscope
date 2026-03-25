@@ -14,9 +14,15 @@ export async function fetchStocks(
   options: QueryOptions = {}
 ): Promise<Stock[]> {
   const mongoFilter = buildMongoFilter(filter);
+  const sortOpt = options.sort;
+  const mongoSort =
+    sortOpt != null
+      ? { [sortOpt.sortBy]: sortOpt.direction === 'asc' ? 1 : -1 }
+      : undefined;
   const result = await stockQueries.find(mongoFilter, {
     limit: options.limit ?? 50,
     skip: options.skip ?? 0,
+    sort: mongoSort,
   });
   return result as unknown as Stock[];
 }

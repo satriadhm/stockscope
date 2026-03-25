@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks';
 import { THEME_COLORS } from '@/lib/constants';
@@ -76,7 +77,7 @@ export function AuthButton(): React.ReactElement {
         }}
       >
         {user.image ? (
-          <img
+          <Image
             src={user.image}
             alt=""
             width={24}

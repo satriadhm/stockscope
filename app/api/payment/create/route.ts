@@ -4,12 +4,12 @@
  * Returns { token, orderId } on success.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import { snap, PREMIUM_PRICE_IDR, ADMIN_FEE_IDR, PRODUCT_NAME } from '@/lib/midtrans';
 
-export async function POST(_req: NextRequest) {
+export async function POST() {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {

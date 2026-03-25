@@ -57,7 +57,7 @@ export function OwnersTab({
   );
 
   useEffect(() => {
-    setPage(1);
+    queueMicrotask(() => setPage(1));
   }, [filteredOwners]);
 
   const paginatedOwners = useMemo(() => {

@@ -1,6 +1,6 @@
 /**
  * GET /api/health
- * Liveness / readiness for Docker HEALTHCHECK and external monitors.
+ * Liveness / readiness for uptime monitors (e.g. Vercel Cron or external pings).
  */
 
 import { NextResponse } from 'next/server';

@@ -8,9 +8,33 @@ import { NextRequest, NextResponse } from 'next/server';
 import { fetchAllStocks } from '@/lib/services/stockService';
 import { calculateAnalytics } from '@/lib/services/analyticsService';
 import { filterStocks } from '@/lib/services/dataTransformService';
-import type { Stock, StockFilter, AnalyticsStats, ApiResponse } from '@/lib/types';
+import type {
+  StockFilter,
+  AnalyticsStats,
+  ApiResponse,
+  OwnerType,
+} from '@/lib/types';
 
-interface AnalyticsResponse extends ApiResponse<AnalyticsStats> {}
+const OWNER_TYPES: OwnerType[] = [
+  'ID',
+  'CP',
+  'IB',
+  'IS',
+  'SC',
+  'PF',
+  'MF',
+  'YD',
+  'GY',
+  'BK',
+  'OT',
+];
+
+function parseOwnerTypeParam(value: string | null): OwnerType | undefined {
+  if (!value) return undefined;
+  return OWNER_TYPES.includes(value as OwnerType) ? (value as OwnerType) : undefined;
+}
+
+type AnalyticsResponse = ApiResponse<AnalyticsStats>;
 
 export async function GET(request: NextRequest): Promise<NextResponse<AnalyticsResponse>> {
   try {
@@ -36,8 +60,9 @@ export async function GET(request: NextRequest): Promise<NextResponse<AnalyticsR
     if (flag) {
       filter.flag = flag;
     }
-    if (ownerType) {
-      filter.ownerType = ownerType as any;
+    const parsedOwnerType = parseOwnerTypeParam(ownerType);
+    if (parsedOwnerType) {
+      filter.ownerType = parsedOwnerType;
     }
 
     // Apply filters

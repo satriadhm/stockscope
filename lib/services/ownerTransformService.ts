@@ -8,7 +8,6 @@ import type {
   OwnerWithPortfolio,
   OwnerTypeData,
   TopOwnersBarData,
-  OwnerType,
 } from '@/lib/types';
 
 const OWNER_TYPE_DEFAULT = 'OT' as const;

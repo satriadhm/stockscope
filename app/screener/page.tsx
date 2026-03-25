@@ -42,7 +42,7 @@ export default function ScreenerPage() {
     params.append('sortBy', sortBy);
     params.append('order', sortOrder);
 
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     fetch(`/api/stocks/enriched?${params.toString()}`)
       .then(res => res.json())
       .then(data => {

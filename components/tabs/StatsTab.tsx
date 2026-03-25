@@ -10,24 +10,9 @@ interface StatsTabProps {
 }
 
 export function StatsTab({ stats, loading = false }: StatsTabProps): React.ReactElement {
-  if (loading) {
-    return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
-        {[...Array(6)].map((_, i) => (
-          <div key={i} style={{ background: '#09131f', border: '1px solid #132030', borderRadius: 10, padding: 20, height: 100 }} />
-        ))}
-      </div>
-    );
-  }
-
-  if (!stats) {
-    return (
-      <div style={{ color: '#a8c8e8', padding: 20 }}>No analytics data available</div>
-    );
-  }
-
-  const statItems = useMemo(
-    () => [
+  const statItems = useMemo(() => {
+    if (!stats) return null;
+    return [
       { label: 'Total Stocks', value: stats.totalStocks.toString() },
       {
         label: 'Red Tier (HHI > 2500)',
@@ -49,9 +34,24 @@ export function StatsTab({ stats, loading = false }: StatsTabProps): React.React
       },
       { label: 'Average HHI', value: stats.avgHHI.toFixed(0) },
       { label: 'Average Float %', value: stats.avgFloat.toFixed(1) + '%' },
-    ],
-    [stats]
-  );
+    ];
+  }, [stats]);
+
+  if (loading) {
+    return (
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+        {[...Array(6)].map((_, i) => (
+          <div key={i} style={{ background: '#09131f', border: '1px solid #132030', borderRadius: 10, padding: 20, height: 100 }} />
+        ))}
+      </div>
+    );
+  }
+
+  if (!stats || !statItems) {
+    return (
+      <div style={{ color: '#a8c8e8', padding: 20 }}>No analytics data available</div>
+    );
+  }
 
   return (
     <div>
