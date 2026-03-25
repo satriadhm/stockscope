@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { FilterPanel } from '@/components/screener/FilterPanel';
 import { ScreenerTable } from '@/components/screener/ScreenerTable';
@@ -10,7 +10,7 @@ import type { EnrichedStock } from '@/lib/types/unified';
 
 export default function ScreenerPage(): React.ReactElement {
   const t = useTranslations('screenerPage');
-  const locale = useLocale();
+  const loadErrorLabel = t('loadError');
   const [stocks, setStocks] = useState<EnrichedStock[]>([]);
   const [sectors, setSectors] = useState<string[]>(['All']);
   const [loading, setLoading] = useState(true);
@@ -51,12 +51,12 @@ export default function ScreenerPage(): React.ReactElement {
           setStocks(data.data);
           setError(null);
         } else {
-          setError(data.error || t('loadError'));
+          setError(data.error || loadErrorLabel);
         }
       })
       .catch((err) => {
         console.error('Error fetching stocks:', err);
-        setError(t('loadError'));
+        setError(loadErrorLabel);
       })
       .finally(() => setLoading(false));
   }, [
@@ -68,7 +68,7 @@ export default function ScreenerPage(): React.ReactElement {
     maxScore,
     sortBy,
     sortOrder,
-    locale,
+    loadErrorLabel,
   ]);
 
   const handleSort = (field: string): void => {

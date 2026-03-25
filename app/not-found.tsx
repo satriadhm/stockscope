@@ -1,7 +1,8 @@
+import type { ReactElement } from 'react';
 import Link from 'next/link';
 
 /** Fallback when 404 is rendered outside `[locale]` (rare). Default locale is Indonesian. */
-export default function RootNotFound(): React.ReactElement {
+export default function RootNotFound(): ReactElement {
   return (
     <div
       style={{
