@@ -1,0 +1,33 @@
+# Right to Information — Next.js app
+#
+# Usage:
+#   1. Copy .env.example to .env and fill in secrets.
+#   2. docker compose up -d --build
+#
+# MongoDB: set MONGODB_URI to Atlas or a host on your VPS. To run MongoDB in
+# Docker instead, uncomment the mongo service and point MONGODB_URI at
+# mongodb://mongo:27017/right_to_information
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    restart: unless-stopped
+    # Optional: mount nothing — image is self-contained
+
+  # Uncomment to run MongoDB on the same host:
+  # mongo:
+  #   image: mongo:7
+  #   restart: unless-stopped
+  #   volumes:
+  #     - mongo_data:/data/db
+  #   ports:
+  #     - "127.0.0.1:27017:27017"
+
+# volumes:
+#   mongo_data:
