@@ -32,7 +32,11 @@ export const authOptions: NextAuthOptions = {
       if (session.user && token.sub) {
         (session.user as { id?: string; plan?: Plan }).id = token.sub;
         // Fetch plan from DB on every session read so it refreshes after payment
-        const plan = await getUserPlan(token.sub);
+        // const devPremium =
+        //   process.env.NODE_ENV === 'development' &&
+        //   process.env.PREMIUM_DEV_OVERRIDE === 'true';
+        // const plan: Plan = devPremium ? 'premium' : await getUserPlan(token.sub);
+        const plan: Plan = await getUserPlan(token.sub);
         (session.user as { id?: string; plan?: Plan }).plan = plan;
       }
       return session;
