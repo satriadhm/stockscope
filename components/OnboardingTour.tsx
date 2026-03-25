@@ -16,7 +16,6 @@ export interface OnboardingTourProps {
   onComplete: () => void;
 }
 
-const TOUR_STORAGE_KEY = 'tourCompleted';
 const DEBOUNCE_MS = 100;
 
 function useDebouncedCallback<T extends (...args: unknown[]) => void>(
@@ -25,7 +24,10 @@ function useDebouncedCallback<T extends (...args: unknown[]) => void>(
 ): T {
   const callbackRef = useRef(callback);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  callbackRef.current = callback;
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
 
   return useCallback(
     (...args: Parameters<T>) => {
@@ -124,7 +126,8 @@ export function OnboardingTour({
 
   useEffect(() => {
     if (!visible || !step) return;
-    calculateSpotlight();
+    const id = requestAnimationFrame(() => calculateSpotlight());
+    return () => cancelAnimationFrame(id);
   }, [visible, step, currentStep, calculateSpotlight]);
 
   useEffect(() => {
