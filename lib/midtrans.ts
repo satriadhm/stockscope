@@ -4,12 +4,11 @@
  * Never import in 'use client' files.
  */
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const Midtrans = require('midtrans-client');
+import { Snap } from 'midtrans-client';
 
 const isProduction = process.env.MIDTRANS_IS_PRODUCTION === 'true';
 
-export const snap = new Midtrans.Snap({
+export const snap = new Snap({
   isProduction,
   serverKey: process.env.MIDTRANS_SERVER_KEY!,
   clientKey: process.env.MIDTRANS_CLIENT_KEY!,
