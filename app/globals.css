@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  /* Legacy colors (for gradual migration) */
   --bg-primary: #060d18;
   --bg-alt: #0d1e30;
   --bg-content: #09131f;
@@ -14,13 +15,31 @@
   --tier-red: #e76f51;
   --tier-amber: #e9c46a;
   --tier-green: #2a9d8f;
+
+  /* Terminal Design System Colors */
+  --color-surface: #0c1324;
+  --color-surface-lowest: #070d1f;
+  --color-surface-low: #151b2d;
+  --color-surface-container: #191f31;
+  --color-surface-high: #23293c;
+  --color-surface-highest: #2e3447;
+  --color-surface-bright: #33394c;
+  --color-primary: #4edea3;
+  --color-primary-container: #10b981;
+  --color-primary-hover: #6ffbbe;
+  --color-error: #ffb4ab;
+  --color-warning: #ffb95f;
+  --color-info: #b7c8e1;
+  --color-text: #dce1fb;
+  --color-text-secondary: #bbcabf;
+  --color-outline: #3c4a42;
 }
 
 @theme inline {
-  --color-background: var(--bg-primary);
-  --color-foreground: var(--text-primary);
-  --font-sans: var(--font-dm-sans);
-  --font-mono: var(--font-dm-mono);
+  --color-background: var(--color-surface);
+  --color-foreground: var(--color-text);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-space-grotesk);
 }
 
 * {
@@ -32,14 +51,68 @@ html {
 }
 
 body {
-  @apply bg-[#060d18] text-[#e8f4f8] antialiased;
+  @apply bg-[#0c1324] text-[#dce1fb] antialiased;
 }
 
 .app-root {
   overflow-x: hidden;
 }
 
-/* Header */
+/* Terminal Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #070d1f; /* surface-container-lowest */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2e3447; /* surface-container-highest */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4edea3; /* primary */
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2e3447 #070d1f;
+}
+
+/* Material Symbols Configuration */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Tabular Numbers for Financial Data */
+.font-label,
+.tabular-nums {
+  font-feature-settings: 'tnum';
+}
+
+/* Glassmorphism Effect */
+.glass-effect {
+  background: rgba(78, 222, 163, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(78, 222, 163, 0.2);
+}
+
+/* Ghost Border (10% opacity outline-variant) */
+.ghost-border {
+  border: 1px solid rgba(60, 74, 66, 0.1);
+}
+
+/* Terminal Glow Effect */
+.terminal-glow {
+  box-shadow: 0 0 20px rgba(78, 222, 163, 0.3);
+}
+
+/* Legacy Header Styles (keep for now) */
 .app-header {
   padding: clamp(12px, 4vw, 20px) clamp(12px, 4vw, 28px) 14px;
   background: linear-gradient(180deg, #0d1e30 0%, #09131f 100%);
@@ -203,7 +276,7 @@ body {
   text-align: left;
   padding: 14px 24px;
   font-size: 0.9375rem;
-  font-family: 'DM Mono', monospace;
+  font-family: 'Space Grotesk', monospace;
   letter-spacing: 0.5px;
   cursor: pointer;
   transition: background 0.15s;
@@ -225,25 +298,6 @@ body {
 
 .drawer-nav-btn:hover:not(.active) {
   background: #09131f;
-}
-
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #09131f;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #1e3a52;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #457b9d;
 }
 
 /* Desktop overrides */
