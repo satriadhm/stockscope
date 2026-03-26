@@ -9,7 +9,55 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Dark theme colors
+        // Terminal Design System colors
+        'surface-container-lowest': '#070d1f',
+        'surface-container-low': '#151b2d',
+        'surface-container': '#191f31',
+        'surface-container-high': '#23293c',
+        'surface-container-highest': '#2e3447',
+        'surface-bright': '#33394c',
+        'surface-variant': '#2e3447',
+        'surface': '#0c1324',
+        'background': '#0c1324',
+        'primary': '#4edea3',
+        'primary-container': '#10b981',
+        'primary-fixed': '#6ffbbe',
+        'primary-fixed-dim': '#4edea3',
+        'on-primary': '#003824',
+        'on-primary-container': '#00422b',
+        'on-primary-fixed': '#002113',
+        'on-primary-fixed-variant': '#005236',
+        'secondary': '#b7c8e1',
+        'secondary-container': '#3a4a5f',
+        'secondary-fixed': '#d3e4fe',
+        'secondary-fixed-dim': '#b7c8e1',
+        'on-secondary': '#213145',
+        'on-secondary-container': '#a9bad3',
+        'on-secondary-fixed': '#0b1c30',
+        'on-secondary-fixed-variant': '#38485d',
+        'tertiary': '#ffb95f',
+        'tertiary-container': '#e29100',
+        'tertiary-fixed': '#ffddb8',
+        'tertiary-fixed-dim': '#ffb95f',
+        'on-tertiary': '#472a00',
+        'on-tertiary-container': '#523200',
+        'on-tertiary-fixed': '#2a1700',
+        'on-tertiary-fixed-variant': '#653e00',
+        'error': '#ffb4ab',
+        'error-container': '#93000a',
+        'on-error': '#690005',
+        'on-error-container': '#ffdad6',
+        'on-surface': '#dce1fb',
+        'on-surface-variant': '#bbcabf',
+        'on-background': '#dce1fb',
+        'outline': '#86948a',
+        'outline-variant': '#3c4a42',
+        'inverse-surface': '#dce1fb',
+        'inverse-on-surface': '#2a3043',
+        'inverse-primary': '#006c49',
+        'surface-tint': '#4edea3',
+        
+        // Legacy colors (keep for gradual migration)
         'bg-primary': '#06050f',
         'bg-alt': '#0d1e30',
         'bg-content': '#09131f',
@@ -32,20 +80,19 @@ const config: Config = {
         'owner-otherbanks': '#8491a3',
         'owner-other': '#666666',
       },
-      backgroundColor: {
-        primary: '#06050f',
-        alt: '#0d1e30',
-        content: '#09131f',
-        'card-alt': '#060d18',
+      fontFamily: {
+        headline: ['var(--font-manrope)', 'sans-serif'],
+        body: ['var(--font-inter)', 'sans-serif'],
+        label: ['var(--font-space-grotesk)', 'monospace'],
+        // Legacy fonts
+        sans: ['var(--font-inter)', 'sans-serif'],
+        mono: ['var(--font-space-grotesk)', 'monospace'],
       },
-      textColor: {
-        primary: '#e8f4f8',
-        secondary: '#a8c8e8',
-        tertiary: '#6b8aad',
-      },
-      borderColor: {
-        primary: '#1e3a52',
-        alt: '#132030',
+      borderRadius: {
+        DEFAULT: '0.125rem',
+        lg: '0.25rem',
+        xl: '0.5rem',
+        full: '0.75rem',
       },
       spacing: {
         full: '100%',
@@ -63,6 +110,19 @@ const config: Config = {
       gridTemplateColumns: {
         'auto-fit': 'repeat(auto-fit, minmax(150px, 1fr))',
         'auto-fill': 'repeat(auto-fill, minmax(200px, 1fr))',
+      },
+      boxShadow: {
+        'terminal': '0 20px 40px rgba(0, 0, 0, 0.4)',
+        'glow': '0 0 20px rgba(78, 222, 163, 0.3)',
+      },
+      animation: {
+        'marquee': 'marquee 30s linear infinite',
+      },
+      keyframes: {
+        marquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
       },
     },
   },

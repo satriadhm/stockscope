@@ -1,19 +1,27 @@
 import type { Metadata, Viewport } from 'next';
-import { DM_Sans, DM_Mono } from 'next/font/google';
+import { Inter, Manrope, Space_Grotesk } from 'next/font/google';
 import { Providers } from './providers';
 import './globals.css';
 
-const dmSans = DM_Sans({
+// Terminal Design System Fonts
+const inter = Inter({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '700'],
-  variable: '--font-dm-sans',
+  weight: ['400', '500', '600'],
+  variable: '--font-inter',
   display: 'swap',
 });
 
-const dmMono = DM_Mono({
+const manrope = Manrope({
   subsets: ['latin'],
-  weight: ['400', '500'],
-  variable: '--font-dm-mono',
+  weight: ['700', '800'],
+  variable: '--font-manrope',
+  display: 'swap',
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  variable: '--font-space-grotesk',
   display: 'swap',
 });
 
@@ -34,14 +42,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={`${dmSans.variable} ${dmMono.variable}`} suppressHydrationWarning>
+    <html lang="id" className={`${inter.variable} ${manrope.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="RTI" />
+        <meta name="apple-mobile-web-app-title" content="Stockscope" />
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
-      <body className={`${dmSans.className} bg-[#06050f] text-[#e8f4f8] antialiased`}>
+      <body className={`${inter.className} bg-[#0c1324] text-[#dce1fb] antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { FlagPill } from '@/components/ui';
 import type { EnrichedStock } from '@/lib/types/unified';
 import { ColumnVisibilityMenu, type ColumnConfig } from './ColumnVisibilityMenu';
+import { ScoreTooltip } from './ScoreTooltip';
 
 interface ScreenerTableProps {
   stocks: EnrichedStock[];
@@ -283,7 +284,11 @@ export function ScreenerTable({ stocks, onSort, sortBy, sortOrder }: ScreenerTab
                     if (sortBy !== 'composite') e.currentTarget.style.color = '#457b9d';
                   }}
                 >
-                  AI Score <SortIcon field="composite" sortBy={sortBy} sortOrder={sortOrder} />
+                  <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                    AI Score 
+                    <SortIcon field="composite" sortBy={sortBy} sortOrder={sortOrder} />
+                    <ScoreTooltip />
+                  </span>
                 </th>
               )}
               {isColumnVisible('aiTier') && (
