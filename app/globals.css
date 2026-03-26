@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* ─── Backward-compat font aliases ─── */
+:root {
+  --font-dm-sans: var(--font-inter);
+  --font-dm-mono: var(--font-jetbrains-mono);
+}
+
 /* ─── Design tokens ─── */
 @theme {
   /* Base backgrounds */
