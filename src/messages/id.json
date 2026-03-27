@@ -174,5 +174,25 @@
     "boundaryTitle": "Terjadi kesalahan",
     "boundaryBody": "Terjadi kesalahan tak terduga. Anda bisa coba lagi atau kembali ke dashboard.",
     "tryAgain": "Coba lagi"
+  },
+  "navbar": {
+    "home": "Beranda",
+    "screener": "Screener",
+    "watchlist": "Watchlist",
+    "toggleMenu": "Buka menu navigasi"
+  },
+  "bottomTabBar": {
+    "home": "Beranda",
+    "screener": "Screener",
+    "watchlist": "Watchlist",
+    "profile": "Profil"
+  },
+  "filterSidebar": {
+    "sector": "Sektor",
+    "scoreTier": "Tier Skor",
+    "pe": "Rasio P/E",
+    "roe": "ROE %",
+    "marketCap": "Kapitalisasi Pasar",
+    "reset": "Atur ulang semua filter"
   }
 }

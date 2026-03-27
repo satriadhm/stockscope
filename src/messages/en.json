@@ -174,5 +174,25 @@
     "boundaryTitle": "Something went wrong",
     "boundaryBody": "An unexpected error occurred. You can try again or return to the dashboard.",
     "tryAgain": "Try again"
+  },
+  "navbar": {
+    "home": "Home",
+    "screener": "Screener",
+    "watchlist": "Watchlist",
+    "toggleMenu": "Toggle navigation menu"
+  },
+  "bottomTabBar": {
+    "home": "Home",
+    "screener": "Screener",
+    "watchlist": "Watchlist",
+    "profile": "Profile"
+  },
+  "filterSidebar": {
+    "sector": "Sector",
+    "scoreTier": "Score Tier",
+    "pe": "P/E Ratio",
+    "roe": "ROE %",
+    "marketCap": "Market Cap",
+    "reset": "Reset all filters"
   }
 }

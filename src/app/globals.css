@@ -7,36 +7,48 @@
 @layer base {
   * { box-sizing: border-box; }
   body {
-    @apply bg-surface-base text-text-primary font-sans antialiased;
+    background-color: #0B0C10;
+    color: #F8FAFC;
+    font-family: Inter, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   ::selection {
-    @apply bg-brand-dim text-brand;
+    background-color: #3B82F620;
+    color: #3B82F6;
   }
   ::-webkit-scrollbar {
     width: 5px; height: 5px;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-surface-base;
+    background-color: #0B0C10;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-border rounded-full;
+    background-color: #272A35;
+    border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-border-strong;
+    background-color: #3F4354;
   }
 }
 
 @layer components {
-  /* Financial number display */
   .num {
-    @apply font-mono tabular-nums tracking-tight;
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.025em;
   }
-  /* Ticker symbol */
   .ticker {
-    @apply font-mono font-bold tracking-wider uppercase;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
   }
-  /* Section label */
   .label {
-    @apply text-2xs font-semibold tracking-widest uppercase text-text-muted;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #64748B;
   }
 }
