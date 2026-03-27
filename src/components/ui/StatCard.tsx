@@ -24,16 +24,15 @@ export function StatCard({
   return (
     <div
       className="
-        bg-surface-card
-        border border-border-subtle
-        rounded-xl p-4
-        hover:border-border
-        hover:bg-surface-elevated
+        rounded-xl border border-border-subtle
+        bg-surface-elevated/70 p-4
+        shadow-[0_10px_30px_-24px_rgba(59,130,246,0.45)]
+        hover:border-border hover:bg-surface-elevated
         transition-all duration-150
       "
     >
       <div className="flex items-start justify-between mb-2">
-        <span className="label text-text-muted">{label}</span>
+        <span className="label text-text-secondary">{label}</span>
         {icon && <span className="text-lg">{icon}</span>}
       </div>
 

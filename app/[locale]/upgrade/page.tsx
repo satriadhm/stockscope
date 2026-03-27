@@ -230,7 +230,7 @@ export default function UpgradePage(): React.ReactElement {
           </div>
         )}
 
-        <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>­ƒöÆ</div>
 
         <h1
           style={{
@@ -280,7 +280,7 @@ export default function UpgradePage(): React.ReactElement {
                   flexShrink: 0,
                 }}
               >
-                ✓
+                Ô£ô
               </span>
               <span
                 style={{

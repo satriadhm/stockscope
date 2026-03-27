@@ -24,11 +24,11 @@ Implemented the full frontend redesign plan for navigation, screener UI, and pag
 ## Modified Files
 
 ### Core Pages
-- `src/app/[locale]/screener/page.tsx`
+- `app/[locale]/screener/page.tsx`
   - Replaced old terminal layout with new navigation + responsive screener layout
   - Added mobile cards + desktop table rendering
   - Added search, pills, sidebar filter state wiring, and sorting state
-- `src/app/[locale]/page.tsx`
+- `app/[locale]/page.tsx`
   - Wrapped home dashboard with `Navbar` and `BottomTabBar`
 
 ### Exports
@@ -69,9 +69,9 @@ Implemented the full frontend redesign plan for navigation, screener UI, and pag
   - `npm run build` ✓
 - **App Router Path Resolution (Phase 6b)** - FIXED:
   - **Problem**: Routes `/en/screener` and `/en/` returned 404 in dev runtime
-  - **Root Cause**: `tsconfig.json` only scanned `src/**/*.ts[x]` files; Next.js App Router looks at root `app/` by default
+  - **Root Cause**: Mixed legacy and root App Router trees caused routing ambiguity
   - **Solution Executed**:
-    1. Migrated page files: `src/app/[locale]/` → `app/[locale]/ `
+    1. Migrated page files from legacy locale tree into `app/[locale]/`
        - `page.tsx` (home page) 
        - `screener/page.tsx` (screener page)
     2. Migrated layout/provider files to root:
@@ -80,7 +80,10 @@ Implemented the full frontend redesign plan for navigation, screener UI, and pag
        - `app/[locale]/layout.tsx` (i18n locale wrapper)
     3. Updated build configuration:
        - `tailwind.config.ts`: Added `'./app/**/*.{js,ts,jsx,tsx,mdx}'` to content scanner
-       - `src/app/globals.css`: Removed `@apply` directives from `@layer components` (replaced with plain CSS) to fix Turbopack initialization
+       - `app/globals.css`: Removed `@apply` directives from `@layer components` (replaced with plain CSS) to fix Turbopack initialization
+     4. Hardening migration:
+      - Removed duplicated legacy route tree
+      - Added CI guard to fail if the legacy tree pattern is reintroduced
   - **Result**: Routes now resolve with HTTP 200 ✓
 
 ### Runtime Testing

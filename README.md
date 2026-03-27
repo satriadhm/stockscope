@@ -28,8 +28,8 @@ npm run dev
 
 ## Project Structure
 ```text
+app/              # App Router pages and API routes
 src/
-├── app/          # Pages and API routes
 ├── components/   # React components (ui, features, layout)
 ├── hooks/        # Custom React hooks
 ├── lib/          # Utilities, services, and configs

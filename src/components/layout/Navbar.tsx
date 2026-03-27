@@ -2,14 +2,13 @@
 
 import { useState } from "react";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 
 import { Link, usePathname } from "@/i18n/navigation";
 
 import { AuthButton } from "./AuthButton";
 
 export function Navbar(): React.ReactElement {
-  const locale = useLocale();
   const t = useTranslations("navbar");
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

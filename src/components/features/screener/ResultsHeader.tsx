@@ -12,39 +12,27 @@ export function ResultsHeader({
   onViewChange,
 }: ResultsHeaderProps) {
   return (
-    <div
-      className="p-6 md:p-10 flex flex-col md:flex-row justify-between items-start 
-                    md:items-end gap-6 border-b border-outline-variant/5"
-    >
-      {/* Left: Title & Badge */}
+    <div className="flex flex-col gap-4 p-4 md:flex-row md:items-center md:justify-between md:p-5">
       <div>
-        <div className="flex items-center gap-3 mb-2">
-          <span
-            className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] 
-                           font-bold rounded uppercase tracking-tighter border border-primary/20"
-          >
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse mr-1"></span>
-            Live Market
-          </span>
-          <span className="text-on-surface-variant text-xs">
-            • Total Results: {totalResults.toLocaleString()}
+        <p className="label mb-1">Live Market</p>
+        <div className="flex items-center gap-2 text-sm text-text-secondary">
+          <span className="inline-flex h-2 w-2 rounded-full bg-bull animate-pulse" />
+          <span>
+            {totalResults.toLocaleString()} stocks matched
           </span>
         </div>
-        <h1 className="text-3xl md:text-5xl font-label font-medium uppercase tracking-widest text-on-surface">
-          Screening Matrix
-        </h1>
       </div>
 
-      {/* Right: View Toggle */}
-      <div className="flex items-center gap-1 bg-surface-container p-1 rounded-lg">
+      <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface-input p-1">
         <button
           onClick={() => onViewChange("table")}
           className={`p-2 rounded-md transition-all ${
             view === "table"
-              ? "bg-surface-variant text-primary"
-              : "text-on-surface-variant hover:text-on-surface"
+              ? "bg-brand-dim text-brand"
+              : "text-text-muted hover:text-text-primary"
           }`}
           title="Table view"
+          aria-label="Table view"
         >
           <span className="material-symbols-outlined">list</span>
         </button>
@@ -52,10 +40,11 @@ export function ResultsHeader({
           onClick={() => onViewChange("cards")}
           className={`p-2 rounded-md transition-all ${
             view === "cards"
-              ? "bg-surface-variant text-primary"
-              : "text-on-surface-variant hover:text-on-surface"
+              ? "bg-brand-dim text-brand"
+              : "text-text-muted hover:text-text-primary"
           }`}
           title="Card view"
+          aria-label="Card view"
         >
           <span className="material-symbols-outlined">grid_view</span>
         </button>

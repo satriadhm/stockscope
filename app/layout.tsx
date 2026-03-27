@@ -3,7 +3,7 @@ import { DM_Mono, DM_Sans } from "next/font/google";
 
 import { Providers } from "./providers";
 
-import "@/app/globals.css";
+import "./globals.css";
 
 // Terminal Design System Fonts
 const dmSans = DM_Sans({
