@@ -1,0 +1,111 @@
+name: guard-no-src-app
+
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - feature/**
+      - hotfix/**
+  workflow_dispatch:
+
+jobs:
+  block-duplicate-app-tree:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect legacy route tree violations
+        id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+          violation="false"
+          details=""
+
+          if [ -d "src/app" ]; then
+            echo "::error title=Duplicate route tree detected::Do not reintroduce src/app. Use root app/ only."
+            violation="true"
+            details+=$'Directory exists:\n'
+            details+="$(find src/app -maxdepth 4 -type f | sed 's/^/- /')"
+            details+=$'\n\n'
+          fi
+
+          if git ls-files | grep -q '^src/app/'; then
+            echo "::error title=Tracked src/app files detected::Remove all tracked files under src/app/."
+            violation="true"
+            details+=$'Tracked files:\n'
+            details+="$(git ls-files | grep '^src/app/' | sed 's/^/- /')"
+            details+=$'\n'
+          fi
+
+          echo "violation=$violation" >> "$GITHUB_OUTPUT"
+          {
+            echo "details<<EOF"
+            echo "$details"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Comment remediation on PR
+        if: steps.detect.outputs.violation == 'true' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = '<!-- guard-no-src-app -->';
+            const details = (process.env.GUARD_DETAILS || '_No file list captured._').trim();
+            const body = [
+              marker,
+              '### Route Tree Guard Failed',
+              '',
+              'This PR reintroduced legacy App Router paths under `src/app`.',
+              '',
+              '**Required remediation**',
+              '1. Move all route files to `app/`.',
+              '2. Delete any files under `src/app/`.',
+              '3. Update config/docs if they reference `src/app`.',
+              '4. Re-run `npm run build` and push fixes.',
+              '',
+              '**Detected paths**',
+              '```text',
+              details,
+              '```',
+            ].join('\n');
+
+            const issue_number = context.payload.pull_request.number;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number,
+              per_page: 100,
+            });
+
+            const existing = comments.find((c) => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number,
+                body,
+              });
+            }
+        env:
+          GUARD_DETAILS: ${{ steps.detect.outputs.details }}
+
+      - name: Fail workflow when violations exist
+        if: steps.detect.outputs.violation == 'true'
+        shell: bash
+        run: |
+          echo "Legacy route tree detected. See remediation comment and logs above."
+          exit 1
