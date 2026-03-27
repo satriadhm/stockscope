@@ -1,5 +1,5 @@
-import { ScreenerWorkspace } from "@/components/features/screener/ScreenerWorkspace";
+import { ScreenerWorkspaceV2 } from "@/components/features/integration/ScreenerWorkspaceV2";
 
 export default function ScreenerPage(): React.ReactElement {
-  return <ScreenerWorkspace />;
+  return <ScreenerWorkspaceV2 />;
 }
