@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
 import { Link, usePathname } from "@/i18n/navigation";
+import type { NavMessageKey } from "@/types/i18n";
 
 interface AppShellProps {
   title: string;
@@ -14,7 +15,7 @@ interface AppShellProps {
 
 type NavItem = {
   href: "/" | "/screener" | "/owners" | "/watchlist" | "/profile";
-  labelKey: "overview" | "screener" | "owners" | "watchlist" | "profile";
+  labelKey: NavMessageKey;
 };
 
 const NAV_ITEMS: NavItem[] = [
@@ -36,7 +37,7 @@ export function AppShell({ title, subtitle, children }: AppShellProps): React.Re
 
   return (
     <div className="shell-root">
-      <aside className="shell-sidebar" aria-label="Primary">
+      <aside className="shell-sidebar" aria-label="Primary navigation">
         <div className="shell-brand">Stockscope</div>
         <nav className="shell-nav">
           {NAV_ITEMS.map((item) => {
@@ -65,7 +66,7 @@ export function AppShell({ title, subtitle, children }: AppShellProps): React.Re
 
         <main className="shell-content">{children}</main>
 
-        <nav className="shell-mobile-nav" aria-label="Mobile primary">
+        <nav className="shell-mobile-nav" aria-label="Mobile primary navigation">
           {NAV_ITEMS.map((item) => {
             const active = isActive(pathname, item.href);
             return (

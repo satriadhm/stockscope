@@ -163,7 +163,11 @@ export function ScreenerWorkspaceV2(): React.ReactElement {
 
           <label className="field">
             <span>Sort By</span>
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+            <select
+              aria-label="Sort by field"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
               <option value="composite">Composite</option>
               <option value="pe">PE</option>
               <option value="change">Change</option>
@@ -175,6 +179,7 @@ export function ScreenerWorkspaceV2(): React.ReactElement {
           <label className="field">
             <span>Order</span>
             <select
+              aria-label="Select sort order"
               value={order}
               onChange={(e) => setOrder(e.target.value as "asc" | "desc")}
             >

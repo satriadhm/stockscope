@@ -12,6 +12,8 @@ interface OwnersResponse {
   error?: string;
 }
 
+const MAX_OWNERS_DISPLAYED = 100;
+
 export function OwnersWorkspace(): React.ReactElement {
   const [owners, setOwners] = useState<OwnerWithPortfolio[]>([]);
   const [search, setSearch] = useState("");
@@ -24,7 +26,9 @@ export function OwnersWorkspace(): React.ReactElement {
     async function loadOwners(): Promise<void> {
       try {
         setLoading(true);
-        const res = await fetch("/api/owners?limit=100&detailed=true");
+        const res = await fetch(
+          `/api/owners?limit=${MAX_OWNERS_DISPLAYED}&detailed=true`,
+        );
         if (!res.ok) {
           throw new Error(`Failed to fetch owners (${res.status})`);
         }

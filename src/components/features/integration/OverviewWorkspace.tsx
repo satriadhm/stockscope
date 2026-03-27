@@ -19,6 +19,8 @@ interface AnalyticsResponse {
   data?: AnalyticsStats;
 }
 
+const TOP_STOCKS_LIMIT = 20;
+
 export function OverviewWorkspace(): React.ReactElement {
   const t = useTranslations("dashboard");
   const [stocks, setStocks] = useState<Stock[]>([]);
@@ -35,7 +37,7 @@ export function OverviewWorkspace(): React.ReactElement {
         setError(null);
 
         const [stocksRes, analyticsRes] = await Promise.all([
-          fetch("/api/stocks?limit=20&sortBy=hhi&sortDir=desc"),
+          fetch(`/api/stocks?limit=${TOP_STOCKS_LIMIT}&sortBy=hhi&sortDir=desc`),
           fetch("/api/analytics"),
         ]);
 
