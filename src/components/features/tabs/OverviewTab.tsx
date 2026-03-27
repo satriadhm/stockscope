@@ -52,8 +52,8 @@ export function OverviewTab({
       <div className="overview-grid">
         <div
           style={{
-            background: "#09131f",
-            border: "1px solid #132030",
+            background: "var(--bg-app)",
+            border: "1px solid var(--bg-surface)",
             borderRadius: 10,
             padding: 20,
             height: 300,
@@ -61,8 +61,8 @@ export function OverviewTab({
         />
         <div
           style={{
-            background: "#09131f",
-            border: "1px solid #132030",
+            background: "var(--bg-app)",
+            border: "1px solid var(--bg-surface)",
             borderRadius: 10,
             padding: 20,
             height: 300,
@@ -81,8 +81,8 @@ export function OverviewTab({
       {/* Risk Distribution Chart */}
       <div
         style={{
-          background: "#09131f",
-          border: "1px solid #132030",
+          background: "var(--bg-app)",
+          border: "1px solid var(--bg-surface)",
           borderRadius: 10,
           padding: 20,
         }}
@@ -90,7 +90,7 @@ export function OverviewTab({
         <div
           style={{
             fontSize: 11,
-            color: "#6b8aad",
+            color: "var(--text-secondary)",
             letterSpacing: 2,
             marginBottom: 4,
           }}
@@ -100,7 +100,7 @@ export function OverviewTab({
         <div
           style={{
             fontSize: 14,
-            color: "#e8f4f8",
+            color: "var(--text-primary)",
             fontWeight: 600,
             marginBottom: 16,
           }}
@@ -111,16 +111,16 @@ export function OverviewTab({
         </div>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={tierDist}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#132030" />
-            <XAxis dataKey="name" tick={{ fill: "#6b8aad", fontSize: 11 }} />
-            <YAxis tick={{ fill: "#6b8aad", fontSize: 11 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--bg-surface)" />
+            <XAxis dataKey="name" tick={{ fill: "var(--text-secondary)", fontSize: 11 }} />
+            <YAxis tick={{ fill: "var(--text-secondary)", fontSize: 11 }} />
             <Tooltip
               contentStyle={{
-                background: "#09131f",
-                border: "1px solid #1e3a52",
+                background: "var(--bg-app)",
+                border: "1px solid var(--bg-surface)",
                 borderRadius: 6,
               }}
-              labelStyle={{ color: "#e8f4f8" }}
+              labelStyle={{ color: "var(--text-primary)" }}
             />
             <Bar dataKey="value" radius={[4, 4, 0, 0]} cursor="pointer">
               {tierDist.map((d) => (
@@ -129,7 +129,7 @@ export function OverviewTab({
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-        <div style={{ fontSize: 10, color: "#457B9D", marginTop: 8 }}>
+        <div style={{ fontSize: 10, color: "var(--text-secondary)", marginTop: 8 }}>
           ↑ Click bars to filter
         </div>
       </div>
@@ -137,8 +137,8 @@ export function OverviewTab({
       {/* HHI Concentration Chart */}
       <div
         style={{
-          background: "#09131f",
-          border: "1px solid #132030",
+          background: "var(--bg-app)",
+          border: "1px solid var(--bg-surface)",
           borderRadius: 10,
           padding: 20,
         }}
@@ -146,7 +146,7 @@ export function OverviewTab({
         <div
           style={{
             fontSize: 11,
-            color: "#6b8aad",
+            color: "var(--text-secondary)",
             letterSpacing: 2,
             marginBottom: 4,
           }}
@@ -156,7 +156,7 @@ export function OverviewTab({
         <div
           style={{
             fontSize: 14,
-            color: "#e8f4f8",
+            color: "var(--text-primary)",
             fontWeight: 600,
             marginBottom: 16,
           }}
@@ -167,21 +167,21 @@ export function OverviewTab({
         </div>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={hhiData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#132030" />
-            <XAxis dataKey="range" tick={{ fill: "#6b8aad", fontSize: 9 }} />
-            <YAxis tick={{ fill: "#6b8aad", fontSize: 11 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--bg-surface)" />
+            <XAxis dataKey="range" tick={{ fill: "var(--text-secondary)", fontSize: 9 }} />
+            <YAxis tick={{ fill: "var(--text-secondary)", fontSize: 11 }} />
             <Tooltip
               contentStyle={{
-                background: "#09131f",
-                border: "1px solid #1e3a52",
+                background: "var(--bg-app)",
+                border: "1px solid var(--bg-surface)",
                 borderRadius: 6,
               }}
-              labelStyle={{ color: "#e8f4f8" }}
+              labelStyle={{ color: "var(--text-primary)" }}
             />
-            <Bar dataKey="count" fill="#457b9d" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="count" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
-        <div style={{ fontSize: 10, color: "#457B9D", marginTop: 8 }}>
+        <div style={{ fontSize: 10, color: "var(--text-secondary)", marginTop: 8 }}>
           ↑ HHI zones distribution
         </div>
       </div>
@@ -189,8 +189,8 @@ export function OverviewTab({
       {/* Key Findings */}
       <div
         style={{
-          background: "#09131f",
-          border: "1px solid #132030",
+          background: "var(--bg-app)",
+          border: "1px solid var(--bg-surface)",
           borderRadius: 10,
           padding: 20,
           gridColumn: "1 / -1",
@@ -199,7 +199,7 @@ export function OverviewTab({
         <div
           style={{
             fontSize: 11,
-            color: "#6b8aad",
+            color: "var(--text-secondary)",
             letterSpacing: 2,
             marginBottom: 12,
           }}
@@ -257,24 +257,24 @@ export function OverviewTab({
             <div
               key={f.id}
               style={{
-                background: "#060d18",
+                background: "var(--bg-surface)",
                 borderRadius: 8,
                 padding: "12px 14px",
-                borderLeft: "3px solid #1e3a52",
+                borderLeft: "3px solid var(--color-primary)",
               }}
             >
               <div style={{ fontSize: 20, marginBottom: 4 }}>{f.icon}</div>
               <div
+                className="tabular-data"
                 style={{
                   fontSize: 16,
                   fontWeight: 700,
-                  color: "#e8f4f8",
-                  fontFamily: "'DM Mono', monospace",
+                  color: "var(--text-primary)",
                 }}
               >
                 {f.stat}
               </div>
-              <div style={{ fontSize: 11, color: "#6b8aad", marginTop: 2 }}>
+              <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 2 }}>
                 {f.desc}
               </div>
             </div>

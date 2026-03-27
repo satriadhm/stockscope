@@ -93,8 +93,8 @@ export function ScreenerTab({
     return (
       <div
         style={{
-          background: "#09131f",
-          border: "1px solid #132030",
+          background: "var(--bg-app)",
+          border: "1px solid var(--bg-surface)",
           borderRadius: 10,
           padding: 20,
         }}
@@ -102,7 +102,7 @@ export function ScreenerTab({
         <div
           style={{
             fontSize: 11,
-            color: "#6b8aad",
+            color: "var(--text-secondary)",
             letterSpacing: 2,
             marginBottom: 16,
           }}
@@ -114,7 +114,7 @@ export function ScreenerTab({
             key={i}
             style={{
               height: 28,
-              background: "#0d1e30",
+              background: "var(--bg-surface)",
               marginBottom: 2,
               borderRadius: 2,
             }}
@@ -134,8 +134,8 @@ export function ScreenerTab({
   return (
     <div
       style={{
-        background: "#09131f",
-        border: "1px solid #132030",
+        background: "var(--bg-app)",
+        border: "1px solid var(--bg-surface)",
         borderRadius: 10,
         padding: 20,
       }}
@@ -152,14 +152,14 @@ export function ScreenerTab({
           <div
             style={{
               fontSize: 11,
-              color: "#6b8aad",
+              color: "var(--text-secondary)",
               letterSpacing: 2,
               marginBottom: 2,
             }}
           >
             STOCK SCREENER
           </div>
-          <div style={{ fontSize: 13, color: "#e8f4f8" }}>
+          <div style={{ fontSize: 13, color: "var(--text-primary)" }}>
             {sortedStocks.length} stocks — cells colour-coded by value
           </div>
         </div>
@@ -170,14 +170,14 @@ export function ScreenerTab({
           style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}
         >
           <thead>
-            <tr style={{ borderBottom: "2px solid #132030" }}>
+            <tr style={{ borderBottom: "2px solid var(--bg-surface)" }}>
               <th
                 style={{
                   textAlign: "left",
                   padding: 8,
-                  color: "#457B9D",
+                  color: "var(--color-primary)",
                   cursor: "pointer",
-                  fontFamily: "'DM Mono', monospace",
+                  fontFamily: "var(--font-mono)",
                   fontSize: 10,
                 }}
                 onClick={() => handleSort("code")}
@@ -188,7 +188,7 @@ export function ScreenerTab({
                 style={{
                   textAlign: "left",
                   padding: 8,
-                  color: "#457B9D",
+                  color: "var(--color-primary)",
                   fontSize: 10,
                 }}
               >
@@ -198,7 +198,7 @@ export function ScreenerTab({
                 style={{
                   textAlign: "left",
                   padding: 8,
-                  color: "#457B9D",
+                  color: "var(--color-primary)",
                   fontSize: 10,
                 }}
               >
@@ -210,9 +210,9 @@ export function ScreenerTab({
                   style={{
                     textAlign: "right",
                     padding: 8,
-                    color: "#457B9D",
+                    color: "var(--color-primary)",
                     cursor: "pointer",
-                    fontFamily: "'DM Mono', monospace",
+                    fontFamily: "var(--font-mono)",
                     fontSize: 10,
                     whiteSpace: "nowrap",
                   }}
@@ -226,7 +226,7 @@ export function ScreenerTab({
                 style={{
                   textAlign: "left",
                   padding: 8,
-                  color: "#457B9D",
+                  color: "var(--color-primary)",
                   fontSize: 10,
                 }}
               >
@@ -240,31 +240,31 @@ export function ScreenerTab({
                 key={s.code}
                 onClick={() => handleRowClick(s)}
                 style={{
-                  borderBottom: "1px solid #0d1e30",
+                  borderBottom: "1px solid var(--bg-surface)",
                   background:
                     selectedCode === s.code
-                      ? "#132030"
+                      ? "var(--bg-surface)"
                       : i % 2 === 0
-                        ? "#09131f"
-                        : "#060d18",
+                        ? "transparent"
+                        : "rgba(255, 255, 255, 0.02)",
                   cursor: "pointer",
                   transition: "background 0.1s",
                 }}
                 onMouseEnter={(e) =>
                   selectedCode !== s.code &&
-                  (e.currentTarget.style.background = "#0d1e30")
+                  (e.currentTarget.style.background = "var(--bg-surface)")
                 }
                 onMouseLeave={(e) =>
                   selectedCode !== s.code &&
                   (e.currentTarget.style.background =
-                    i % 2 === 0 ? "#09131f" : "#060d18")
+                    i % 2 === 0 ? "transparent" : "rgba(255, 255, 255, 0.02)")
                 }
               >
                 <td
+                  className="tabular-data"
                   style={{
                     padding: "6px 8px",
-                    color: "#e8f4f8",
-                    fontFamily: "'DM Mono', monospace",
+                    color: "var(--text-primary)",
                     fontWeight: 600,
                     fontSize: 11,
                     whiteSpace: "nowrap",
@@ -275,7 +275,7 @@ export function ScreenerTab({
                 <td
                   style={{
                     padding: "6px 8px",
-                    color: "#6b8aad",
+                    color: "var(--text-secondary)",
                     maxWidth: 180,
                     overflow: "hidden",
                     textOverflow: "ellipsis",
@@ -345,15 +345,15 @@ export function ScreenerTab({
                     <tr
                       key={`blurred-${i}`}
                       style={{
-                        borderBottom: "1px solid #0d1e30",
-                        background: i % 2 === 0 ? "#09131f" : "#060d18",
+                        borderBottom: "1px solid var(--bg-surface)",
+                        background: i % 2 === 0 ? "transparent" : "rgba(255, 255, 255, 0.02)",
                       }}
                     >
                       <td
                         colSpan={8}
                         style={{
                           padding: "12px 8px",
-                          color: "#6b8aad",
+                          color: "var(--text-secondary)",
                           fontSize: 11,
                         }}
                       >
@@ -383,9 +383,9 @@ export function ScreenerTab({
           <div
             style={{
               fontSize: 11,
-              color: "#6b8aad",
+              color: "var(--text-secondary)",
               padding: "12px 0",
-              borderTop: "1px solid #132030",
+              borderTop: "1px solid var(--bg-surface)",
             }}
           >
             Showing {limitedVisible.length} of {sortedStocks.length} — Upgrade

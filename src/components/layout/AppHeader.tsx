@@ -156,19 +156,17 @@ export function AppHeader({
               onChange={handleSearchChange}
               placeholder={t("searchPlaceholder")}
               aria-label={t("searchAria")}
-              className="search-input"
+              className="search-input bg-[--bg-surface] text-[--text-primary] rounded-full px-8 py-2 text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[--color-primary]"
               style={{
-                border: `1px solid ${search ? "#457B9D" : "#1e3a52"}`,
+                border: `1px solid ${search ? "var(--color-primary)" : "#132030"}`,
               }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = "#457B9D";
-                e.currentTarget.style.boxShadow = "0 0 0 2px #457B9D33";
+                e.currentTarget.style.borderColor = "var(--color-primary)";
               }}
               onBlur={(e) => {
                 e.currentTarget.style.borderColor = search
-                  ? "#457B9D"
-                  : "#1e3a52";
-                e.currentTarget.style.boxShadow = "none";
+                  ? "var(--color-primary)"
+                  : "#132030";
               }}
             />
             {search && (
@@ -193,28 +191,7 @@ export function AppHeader({
           </div>
           <Link
             href="/screener"
-            style={{
-              background: "#132030",
-              border: "1px solid #1e3a52",
-              color: "#a8c8e8",
-              borderRadius: 6,
-              padding: "6px 12px",
-              cursor: "pointer",
-              fontSize: 12,
-              whiteSpace: "nowrap",
-              textDecoration: "none",
-              display: "inline-flex",
-              alignItems: "center",
-              transition: "border-color 0.2s, color 0.2s",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "#457b9d";
-              e.currentTarget.style.color = "#e8f4f8";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "#1e3a52";
-              e.currentTarget.style.color = "#a8c8e8";
-            }}
+            className="flex items-center bg-[--bg-surface] border border-[#132030] text-[--text-secondary] rounded-md px-3 py-1.5 text-xs whitespace-nowrap no-underline transition-colors hover:border-[--color-primary] hover:text-[--text-primary] focus-visible:ring-2 focus-visible:ring-[--color-primary]"
           >
             {t("screener")}
           </Link>
@@ -224,16 +201,7 @@ export function AppHeader({
               onClick={onReplayTour}
               title={t("tourTitle")}
               aria-label={t("tourTitle")}
-              style={{
-                background: "#132030",
-                border: "1px solid #457B9D",
-                color: "#a8c8e8",
-                borderRadius: 6,
-                padding: "6px 12px",
-                cursor: "pointer",
-                fontSize: 12,
-                whiteSpace: "nowrap",
-              }}
+              className="bg-[--bg-surface] border border-[#132030] text-[--text-secondary] rounded-md px-3 py-1.5 text-xs whitespace-nowrap cursor-pointer hover:border-[--color-primary] hover:text-[--text-primary] focus-visible:ring-2 focus-visible:ring-[--color-primary] transition-colors"
             >
               {t("tour")}
             </button>
@@ -242,22 +210,13 @@ export function AppHeader({
           {hasFilter && (
             <button
               onClick={clearFilters}
-              style={{
-                background: "#132030",
-                border: "1px solid #e76f5155",
-                color: "#e76f51",
-                borderRadius: 6,
-                padding: "6px 14px",
-                cursor: "pointer",
-                fontSize: 12,
-                whiteSpace: "nowrap",
-              }}
+              className="bg-[--bg-surface] border border-[--color-warning] text-[--color-warning] rounded-md px-3 py-1.5 text-xs whitespace-nowrap cursor-pointer hover:bg-[--color-warning]/10 focus-visible:ring-2 focus-visible:ring-[--color-warning] transition-colors"
             >
               {t("clearFilters")}
             </button>
           )}
           <button
-            className="hamburger-btn"
+            className="hamburger-btn focus-visible:ring-2 focus-visible:ring-[--color-primary] min-h-[44px] min-w-[44px]"
             onClick={() => setDrawerOpen(true)}
             aria-label={t("menuOpen")}
             aria-expanded={drawerOpen}

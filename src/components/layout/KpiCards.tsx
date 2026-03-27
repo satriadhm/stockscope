@@ -41,32 +41,32 @@ export function KpiCards({
             ? Math.round((stats.byTier.red / stats.totalStocks) * 100)
             : 0,
         }),
-        color: "#E76F51",
+        color: "var(--color-negative)",
         click: () => setTierFilter(tierFilter === "Red" ? null : "Red"),
       },
       {
         label: t("amberRisk"),
         val: stats.byTier.amber,
-        color: "#E9C46A",
+        color: "var(--color-warning)",
         click: () => setTierFilter(tierFilter === "Amber" ? null : "Amber"),
       },
       {
         label: t("greenRisk"),
         val: stats.byTier.green,
-        color: "#2A9D8F",
+        color: "var(--color-positive)",
         click: () => setTierFilter(tierFilter === "Green" ? null : "Green"),
       },
       {
         label: t("avgHhi"),
         val: stats.avgHHI?.toFixed(0),
         sub: t("hhiHighConc"),
-        color: stats.avgHHI > 2500 ? "#E76F51" : "#E9C46A",
+        color: stats.avgHHI > 2500 ? "var(--color-negative)" : "var(--color-warning)",
       },
       {
         label: t("avgFloat"),
         val: stats.avgFloat?.toFixed(1) + "%",
         sub: t("idxMin"),
-        color: stats.avgFloat < 15 ? "#E76F51" : "#2A9D8F",
+        color: stats.avgFloat < 15 ? "var(--color-negative)" : "var(--color-positive)",
       },
     ];
   }, [loading, stats, t, tierFilter, setTierFilter]);
@@ -78,15 +78,15 @@ export function KpiCards({
           <div
             key={i}
             style={{
-              background: "#09131f",
+              background: "var(--bg-app)",
               padding: "14px 18px",
-              borderRight: "1px solid #132030",
+              borderRight: "1px solid var(--bg-surface)",
             }}
           >
             <div
               style={{
                 height: 10,
-                background: "#1e3a52",
+                background: "var(--bg-surface)",
                 borderRadius: 2,
                 width: "60%",
                 marginBottom: 8,
@@ -95,7 +95,7 @@ export function KpiCards({
             <div
               style={{
                 height: 24,
-                background: "#1e3a52",
+                background: "var(--bg-surface)",
                 borderRadius: 2,
                 width: "40%",
               }}
@@ -113,34 +113,34 @@ export function KpiCards({
           key={k.label}
           onClick={k.click}
           style={{
-            background: "#09131f",
+            background: "var(--bg-app)",
             padding: "14px 18px",
             cursor: k.click ? "pointer" : "default",
-            borderRight: "1px solid #132030",
+            borderRight: "1px solid var(--bg-surface)",
             transition: "background 0.15s",
           }}
           onMouseEnter={(e) =>
-            k.click && (e.currentTarget.style.background = "#0d1e30")
+            k.click && (e.currentTarget.style.background = "var(--bg-surface)")
           }
           onMouseLeave={(e) =>
-            k.click && (e.currentTarget.style.background = "#09131f")
+            k.click && (e.currentTarget.style.background = "var(--bg-app)")
           }
         >
           <div
             style={{
               fontSize: 9,
               letterSpacing: 2,
-              color: "#457B9D",
+              color: "var(--text-secondary)",
               marginBottom: 4,
             }}
           >
             {k.label}
           </div>
           <div
+            className="tabular-data"
             style={{
               fontSize: 24,
               fontWeight: 700,
-              fontFamily: "'DM Mono', monospace",
               color: k.color,
             }}
           >

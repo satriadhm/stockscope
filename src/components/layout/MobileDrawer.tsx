@@ -43,13 +43,17 @@ export function MobileDrawer({
       <div
         className={`drawer-overlay ${drawerOpen ? "open" : ""}`}
         onClick={() => setDrawerOpen(false)}
+        aria-hidden="true"
       />
       <div
         ref={drawerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile Navigation Drawer"
         className={`mobile-drawer ${drawerOpen ? "open" : ""}`}
       >
         <button
-          className="drawer-close"
+          className="drawer-close focus-visible:ring-2 focus-visible:ring-[--color-primary] min-h-[44px] min-w-[44px]"
           onClick={() => setDrawerOpen(false)}
           aria-label="Close navigation"
         >
@@ -58,7 +62,7 @@ export function MobileDrawer({
         {NAV_TABS.map(([id, label]) => (
           <button
             key={id}
-            className={`drawer-nav-btn ${activeTab === id ? "active" : ""}`}
+            className={`drawer-nav-btn focus-visible:ring-2 focus-visible:ring-[--color-primary] min-h-[44px] ${activeTab === id ? "active" : ""}`}
             onClick={() => handleTabClick(id)}
           >
             {label}

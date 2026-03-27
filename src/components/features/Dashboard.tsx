@@ -22,6 +22,7 @@ import {
   StatsTab,
 } from '@/components/features/tabs';
 import { BlurOverlay } from "@/components/ui";
+import { EmptyState } from "@/components/ui/EmptyState";
 import {
   useAnalytics,
   usePlan,
@@ -180,44 +181,23 @@ export function Dashboard(): React.ReactElement {
     tDash,
   ]);
 
-  if (stockData.loading && stockData.RAW.length === 0) {
-    return (
-      <div
-        className="app-root"
-        style={{
-          background: "#060d18",
-          minHeight: "100vh",
-          color: "#e8f4f8",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div style={{ textAlign: "center" }}>
-          <h2>{tDash("loadingTitle")}</h2>
-          <p style={{ color: "#a8c8e8" }}>{tDash("loadingSubtitle")}</p>
-        </div>
-      </div>
-    );
-  }
-
   if (stockData.error && stockData.RAW.length === 0) {
     return (
       <div
         className="app-root"
         style={{
-          background: "#060d18",
+          background: "var(--bg-app)",
           minHeight: "100vh",
-          color: "#e8f4f8",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
         }}
       >
-        <div style={{ textAlign: "center" }}>
-          <h2>{tDash("errorTitle")}</h2>
-          <p>{stockData.error}</p>
-        </div>
+        <EmptyState 
+          icon="error" 
+          message={tDash("errorTitle")} 
+          subMessage={stockData.error.toString()} 
+        />
       </div>
     );
   }
@@ -227,9 +207,9 @@ export function Dashboard(): React.ReactElement {
       <div
         className="app-root"
         style={{
-          background: "#060d18",
+          background: "var(--bg-app)",
           minHeight: "100vh",
-          color: "#e8f4f8",
+          color: "var(--text-primary)",
           padding: "0 0 40px",
         }}
       >
@@ -362,18 +342,11 @@ export function Dashboard(): React.ReactElement {
           {!stockData.loading &&
             stockData.filtered.length === 0 &&
             activeTab !== "owners" && (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "60px 20px",
-                  color: "#a8c8e8",
-                }}
-              >
-                <p style={{ fontSize: 16, marginBottom: 8 }}>
-                  {tDash("emptyTitle")}
-                </p>
-                <p style={{ fontSize: 13 }}>{tDash("emptyHint")}</p>
-              </div>
+              <EmptyState 
+                message={tDash("emptyTitle")} 
+                subMessage={tDash("emptyHint")} 
+                icon="dashboard_customize" 
+              />
             )}
         </div>
       </div>

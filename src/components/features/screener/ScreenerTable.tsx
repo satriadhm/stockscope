@@ -3,6 +3,8 @@
 import React from "react";
 
 import type { EnrichedStock } from "@/types/unified";
+import { TrendBadge } from "@/components/ui/TrendBadge";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 interface ScreenerTableProps {
   stocks: EnrichedStock[];
@@ -45,15 +47,15 @@ const ScoreBar = ({ score, type }: { score: number; type: "ai" | "gov" }) => {
   const color =
     type === "ai"
       ? score >= 70
-        ? "bg-primary"
+        ? "bg-[--color-positive]"
         : score >= 40
-          ? "bg-tertiary"
-          : "bg-error"
+          ? "bg-[--color-warning]"
+          : "bg-[--color-negative]"
       : score >= 70
-        ? "bg-primary"
+        ? "bg-[--color-positive]"
         : score >= 40
-          ? "bg-tertiary"
-          : "bg-error";
+          ? "bg-[--color-warning]"
+          : "bg-[--color-negative]";
 
   const glowColor =
     type === "ai"
@@ -86,14 +88,14 @@ const ScoreBar = ({ score, type }: { score: number; type: "ai" | "gov" }) => {
 const TierBadge = ({ tier }: { tier: string }) => {
   const tierLower = tier?.toLowerCase() || "";
   const colors: Record<string, string> = {
-    green: "bg-primary/10 text-primary",
-    amber: "bg-tertiary/10 text-tertiary",
-    red: "bg-error/10 text-error",
-    "strong buy": "bg-primary/10 text-primary",
-    buy: "bg-primary/10 text-primary",
-    watch: "bg-tertiary/10 text-tertiary",
+    green: "bg-[--color-positive]/10 text-[--color-positive]",
+    amber: "bg-[--color-warning]/10 text-[--color-warning]",
+    red: "bg-[--color-negative]/10 text-[--color-negative]",
+    "strong buy": "bg-[--color-positive]/10 text-[--color-positive]",
+    buy: "bg-[--color-positive]/10 text-[--color-positive]",
+    watch: "bg-[--color-warning]/10 text-[--color-warning]",
     neutral: "bg-on-surface-variant/10 text-on-surface-variant",
-    avoid: "bg-error/10 text-error",
+    avoid: "bg-[--color-negative]/10 text-[--color-negative]",
     "n/a": "bg-on-surface-variant/10 text-on-surface-variant",
   };
 
@@ -286,8 +288,8 @@ export function ScreenerTable({
                     <div
                       className={`w-2 h-8 rounded-full ${
                         isPositive
-                          ? "bg-primary shadow-[0_0_8px_rgba(78,222,163,0.4)]"
-                          : "bg-error shadow-[0_0_8px_rgba(255,180,171,0.3)]"
+                          ? "bg-[--color-positive] shadow-[0_0_8px_rgba(16,185,129,0.4)]"
+                          : "bg-[--color-negative] shadow-[0_0_8px_rgba(239,68,68,0.3)]"
                       }`}
                     />
                   </td>
@@ -313,13 +315,7 @@ export function ScreenerTable({
 
                   {/* Change % */}
                   <td className="px-4 py-4 text-right">
-                    <span
-                      className={`font-label text-sm font-semibold tabular-nums ${
-                        isPositive ? "text-primary" : "text-error"
-                      }`}
-                    >
-                      {formatPercent(stock.change)}
-                    </span>
+                    <TrendBadge value={stock.change ?? 0} />
                   </td>
 
                   {/* Volume */}
@@ -374,17 +370,11 @@ export function ScreenerTable({
       </table>
 
       {stocks.length === 0 && (
-        <div className="text-center py-16">
-          <span className="material-symbols-outlined text-6xl text-on-surface-variant/20 mb-4 block">
-            search_off
-          </span>
-          <p className="font-label text-sm uppercase tracking-widest text-on-surface-variant">
-            No stocks found
-          </p>
-          <p className="font-body text-sm text-on-surface-variant/60 mt-2">
-            Try adjusting your filters
-          </p>
-        </div>
+        <EmptyState 
+          message="No stocks found" 
+          subMessage="Try adjusting your filters" 
+          icon="search_off" 
+        />
       )}
     </div>
   );

@@ -1,45 +1,39 @@
 @import "tailwindcss";
 
 :root {
-  /* Legacy colors (for gradual migration) */
-  --bg-primary: #060d18;
-  --bg-alt: #0d1e30;
-  --bg-content: #09131f;
-  --bg-card-alt: #060d18;
-  --text-primary: #e8f4f8;
-  --text-secondary: #a8c8e8;
-  --text-tertiary: #6b8aad;
-  --border-primary: #1e3a52;
-  --border-alt: #132030;
-  --accent-blue: #457b9d;
-  --tier-red: #e76f51;
-  --tier-amber: #e9c46a;
-  --tier-green: #2a9d8f;
-
-  /* Terminal Design System Colors */
-  --color-surface: #0c1324;
-  --color-surface-lowest: #070d1f;
-  --color-surface-low: #151b2d;
-  --color-surface-container: #191f31;
-  --color-surface-high: #23293c;
-  --color-surface-highest: #2e3447;
-  --color-surface-bright: #33394c;
+  /* Background/Surface */
+  --bg-app: #070d1f;
+  --bg-surface: #151b2d;
+  
+  /* Primary/Accent */
   --color-primary: #4edea3;
-  --color-primary-container: #10b981;
-  --color-primary-hover: #6ffbbe;
-  --color-error: #ffb4ab;
-  --color-warning: #ffb95f;
-  --color-info: #b7c8e1;
-  --color-text: #dce1fb;
-  --color-text-secondary: #bbcabf;
-  --color-outline: #3c4a42;
+  
+  /* Semantic Finance Colors */
+  --color-positive: #10b981;
+  --color-negative: #ef4444;
+  --color-warning: #eab308;
+  
+  /* Text */
+  --text-primary: #dce1fb;
+  --text-secondary: #64748b;
+
+  /* Typography */
+  --font-sans: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+/* Mandatory Tabular Numbers for Data Grids */
+.tabular-data {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
 }
 
 @theme inline {
-  --color-background: var(--color-surface);
-  --color-foreground: var(--color-text);
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-space-grotesk);
+  --color-background: var(--bg-app);
+  --color-foreground: var(--text-primary);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
 * {
@@ -51,7 +45,7 @@ html {
 }
 
 body {
-  @apply bg-[#0c1324] text-[#dce1fb] antialiased;
+  @apply bg-[#070d1f] text-[#dce1fb] antialiased;
 }
 
 .app-root {

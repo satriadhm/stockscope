@@ -22,19 +22,19 @@ export function StatsTab({
         label: "Red Tier (HHI > 2500)",
         value: stats.byTier.red.toString(),
         sub: `${((stats.byTier.red / stats.totalStocks) * 100).toFixed(1)}% of total`,
-        color: "#E76F51",
+        color: "var(--color-negative)",
       },
       {
         label: "Amber Tier (HHI 1500-2500)",
         value: stats.byTier.amber.toString(),
         sub: `${((stats.byTier.amber / stats.totalStocks) * 100).toFixed(1)}% of total`,
-        color: "#E9C46A",
+        color: "var(--color-warning)",
       },
       {
         label: "Green Tier (HHI < 1500)",
         value: stats.byTier.green.toString(),
         sub: `${((stats.byTier.green / stats.totalStocks) * 100).toFixed(1)}% of total`,
-        color: "#2A9D8F",
+        color: "var(--color-positive)",
       },
       { label: "Average HHI", value: stats.avgHHI.toFixed(0) },
       { label: "Average Float %", value: stats.avgFloat.toFixed(1) + "%" },
@@ -54,8 +54,8 @@ export function StatsTab({
           <div
             key={i}
             style={{
-              background: "#09131f",
-              border: "1px solid #132030",
+              background: "var(--bg-app)",
+              border: "1px solid var(--bg-surface)",
               borderRadius: 10,
               padding: 20,
               height: 100,
@@ -88,8 +88,8 @@ export function StatsTab({
           <div
             key={idx}
             style={{
-              background: "#09131f",
-              border: "1px solid #132030",
+              background: "var(--bg-app)",
+              border: "1px solid var(--bg-surface)",
               borderRadius: 10,
               padding: "16px 20px",
             }}
@@ -97,7 +97,7 @@ export function StatsTab({
             <div
               style={{
                 fontSize: 11,
-                color: "#6b8aad",
+                color: "var(--text-secondary)",
                 letterSpacing: 1,
                 marginBottom: 6,
               }}
@@ -105,17 +105,17 @@ export function StatsTab({
               {item.label.toUpperCase()}
             </div>
             <div
+              className="tabular-data"
               style={{
                 fontSize: 28,
                 fontWeight: 700,
-                fontFamily: "'DM Mono', monospace",
-                color: item.color || "#e8f4f8",
+                color: item.color || "var(--text-primary)",
               }}
             >
               {item.value}
             </div>
             {item.sub && (
-              <div style={{ fontSize: 10, color: "#6b8aad", marginTop: 4 }}>
+              <div style={{ fontSize: 10, color: "var(--text-secondary)", marginTop: 4 }}>
                 {item.sub}
               </div>
             )}
@@ -127,8 +127,8 @@ export function StatsTab({
       {Object.keys(stats.byFlag).length > 0 && (
         <div
           style={{
-            background: "#09131f",
-            border: "1px solid #132030",
+            background: "var(--bg-app)",
+            border: "1px solid var(--bg-surface)",
             borderRadius: 10,
             padding: 20,
           }}
@@ -136,7 +136,7 @@ export function StatsTab({
           <div
             style={{
               fontSize: 11,
-              color: "#6b8aad",
+              color: "var(--text-secondary)",
               letterSpacing: 2,
               marginBottom: 16,
             }}
@@ -153,12 +153,12 @@ export function StatsTab({
                   justifyContent: "space-between",
                 }}
               >
-                <span style={{ color: "#a8c8e8", fontSize: 12 }}>{flag}</span>
+                <span style={{ color: "var(--text-secondary)", fontSize: 12 }}>{flag}</span>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <div
                     style={{
                       width: 120,
-                      background: "#132030",
+                      background: "var(--bg-surface)",
                       borderRadius: 4,
                       height: 6,
                     }}
@@ -166,17 +166,17 @@ export function StatsTab({
                     <div
                       style={{
                         width: `${(count / stats.totalStocks) * 100}%`,
-                        background: "#457b9d",
+                        background: "var(--color-primary)",
                         borderRadius: 4,
                         height: 6,
                       }}
                     />
                   </div>
                   <span
+                    className="tabular-data"
                     style={{
-                      color: "#e8f4f8",
+                      color: "var(--text-primary)",
                       fontWeight: 600,
-                      fontFamily: "'DM Mono', monospace",
                       fontSize: 12,
                       width: 40,
                       textAlign: "right",
