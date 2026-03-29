@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
+import { useDebounce } from 'use-debounce';
 import { FilterPanel } from '@/components/screener/FilterPanel';
 import { ScreenerTable } from '@/components/screener/ScreenerTable';
 import { ScreenerCardList } from '@/components/screener/ScreenerCardList';
@@ -34,6 +35,7 @@ export default function ScreenerPage(): React.ReactElement {
   }, []);
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
   const [selectedSector, setSelectedSector] = useState('All');
   const [selectedAiTier, setSelectedAiTier] = useState('');
   const [selectedGovTier, setSelectedGovTier] = useState<'Red' | 'Amber' | 'Green' | ''>('');
@@ -51,7 +53,7 @@ export default function ScreenerPage(): React.ReactElement {
 
   useEffect(() => {
     const params = new URLSearchParams();
-    if (searchQuery) params.append('search', searchQuery);
+    if (debouncedSearchQuery) params.append('search', debouncedSearchQuery);
     if (selectedSector !== 'All') params.append('sector', selectedSector);
     if (selectedAiTier) params.append('aiTier', selectedAiTier);
     if (selectedGovTier) params.append('tier', selectedGovTier);
@@ -77,7 +79,7 @@ export default function ScreenerPage(): React.ReactElement {
       })
       .finally(() => setLoading(false));
   }, [
-    searchQuery,
+    debouncedSearchQuery,
     selectedSector,
     selectedAiTier,
     selectedGovTier,
