@@ -50,7 +50,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Stockscope" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
-      <body className={`${inter.className} bg-[#0c1324] text-[#dce1fb] antialiased`}>
+      <body className={`${inter.className} antialiased`} style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text)' }}>
         <Providers>{children}</Providers>
       </body>
     </html>

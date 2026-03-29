@@ -35,6 +35,48 @@
   --color-outline: #3c4a42;
 }
 
+/* Light mode support */
+@media (prefers-color-scheme: light) {
+  :root {
+    /* Light mode surfaces */
+    --color-surface: #ffffff;
+    --color-surface-lowest: #f9fafb;
+    --color-surface-low: #f3f4f6;
+    --color-surface-container: #e5e7eb;
+    --color-surface-high: #d1d5db;
+    --color-surface-highest: #9ca3af;
+    --color-surface-bright: #ffffff;
+    
+    /* Light mode text */
+    --color-text: #1a1a1a;
+    --color-text-secondary: #4a4a4a;
+    --text-primary: #1a1a1a;
+    --text-secondary: #4a4a4a;
+    --text-tertiary: #6b7280;
+    
+    /* Light mode primary adjusted */
+    --color-primary: #059669;
+    --color-primary-container: #10b981;
+    --color-primary-hover: #047857;
+    
+    /* Light mode borders & outlines */
+    --color-outline: #d1d5db;
+    --border-primary: #e5e7eb;
+    --border-alt: #f3f4f6;
+    
+    /* Light mode backgrounds */
+    --bg-primary: #ffffff;
+    --bg-alt: #f9fafb;
+    --bg-content: #ffffff;
+    --bg-card-alt: #f9fafb;
+    
+    /* Scrollbar for light mode */
+    --scrollbar-track: #f3f4f6;
+    --scrollbar-thumb: #9ca3af;
+    --scrollbar-thumb-hover: #059669;
+  }
+}
+
 @theme inline {
   --color-background: var(--color-surface);
   --color-foreground: var(--color-text);
@@ -51,7 +93,9 @@ html {
 }
 
 body {
-  @apply bg-[#0c1324] text-[#dce1fb] antialiased;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  @apply antialiased;
 }
 
 .app-root {
@@ -65,16 +109,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #070d1f; /* surface-container-lowest */
+  background: var(--scrollbar-track, #070d1f);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2e3447; /* surface-container-highest */
+  background: var(--scrollbar-thumb, #2e3447);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #4edea3; /* primary */
+  background: var(--scrollbar-thumb-hover, #4edea3);
 }
 
 /* Firefox scrollbar */
