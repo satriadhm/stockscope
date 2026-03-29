@@ -173,6 +173,29 @@ export default function ScreenerPage(): React.ReactElement {
                 </div>
               ) : loading ? (
                 <SkeletonLoader rows={5} columns={7} />
+              ) : stocks.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+                  <div className="text-6xl mb-4">🔍</div>
+                  <h3 className="text-base font-semibold text-ink-primary mb-2">
+                    {t('noResultsTitle')}
+                  </h3>
+                  <p className="text-sm text-ink-secondary max-w-sm mb-4">
+                    {t('noResultsDescription')}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedSector('All');
+                      setSelectedAiTier('');
+                      setSelectedGovTier('');
+                      setMinScore('');
+                      setMaxScore('');
+                    }}
+                    className="text-sm text-accent hover:text-accent-hover transition-colors font-medium"
+                  >
+                    {t('clearFilters')}
+                  </button>
+                </div>
               ) : view === 'cards' ? (
                 <ScreenerCardList stocks={stocks} />
               ) : (
