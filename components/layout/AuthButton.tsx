@@ -47,19 +47,15 @@ export function AuthButton(): React.ReactElement {
         onClick={() =>
           signIn('google', { callbackUrl: localizedPath(locale, pathname || '/') })
         }
-        style={{
-          background: '#fff',
-          color: '#1a1a1a',
-          border: 'none',
-          borderRadius: 6,
-          padding: '8px 14px',
-          fontSize: 12,
-          fontWeight: 600,
-          cursor: 'pointer',
-          whiteSpace: 'nowrap',
-        }}
+        className="bg-white text-gray-900 hover:bg-gray-50 
+                   px-3 py-2 md:px-4 md:py-2
+                   text-sm md:text-xs font-semibold
+                   rounded-lg transition-colors
+                   min-h-[44px] min-w-[44px]
+                   whitespace-nowrap"
       >
-        {t('signIn')}
+        <span className="hidden sm:inline">{t('signIn')}</span>
+        <span className="sm:hidden">Sign In</span>
       </button>
     );
   }
