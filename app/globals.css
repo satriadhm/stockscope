@@ -207,7 +207,14 @@ body {
   font-size: 0.75rem;
   outline: none;
   transition: border-color 0.2s;
-  width: clamp(140px, 40vw, 260px);
+  width: 100%;
+  max-width: 260px;
+}
+
+@media (min-width: 640px) {
+  .search-input {
+    width: clamp(140px, 40vw, 260px);
+  }
 }
 
 /* Hamburger button */
