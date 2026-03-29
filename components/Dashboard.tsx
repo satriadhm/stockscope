@@ -170,16 +170,8 @@ export function Dashboard(): React.ReactElement {
     tDash,
   ]);
 
-  if (stockData.loading && stockData.RAW.length === 0) {
-    return (
-      <div className="app-root" style={{ background: '#060d18', minHeight: '100vh', color: '#e8f4f8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <h2>{tDash('loadingTitle')}</h2>
-          <p style={{ color: '#a8c8e8' }}>{tDash('loadingSubtitle')}</p>
-        </div>
-      </div>
-    );
-  }
+  // Show layout even during initial load (don't blank the page)
+  const isInitialLoading = stockData.loading && stockData.RAW.length === 0;
 
   if (stockData.error && stockData.RAW.length === 0) {
     return (
@@ -223,7 +215,7 @@ export function Dashboard(): React.ReactElement {
 
         <KpiCards
           stats={stats}
-          loading={stockData.loading || statsLoading}
+          loading={isInitialLoading || stockData.loading || statsLoading}
           tierFilter={filters.tier || null}
           setTierFilter={handleTierFilter}
         />
@@ -234,7 +226,17 @@ export function Dashboard(): React.ReactElement {
           setActiveTab={setActiveTab}
         />
 
-        <div className="content-area">
+        {/* Show loading overlay for initial load, but keep layout visible */}
+        {isInitialLoading ? (
+          <div className="content-area" style={{ minHeight: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div className="animate-spin" style={{ fontSize: '48px', marginBottom: '16px' }}>⟳</div>
+              <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '8px' }}>{tDash('loadingTitle')}</h3>
+              <p style={{ color: '#a8c8e8', fontSize: '14px' }}>{tDash('loadingSubtitle')}</p>
+            </div>
+          </div>
+        ) : (
+          <div className="content-area">
           {activeTab === 'overview' && (
             <OverviewTab
               stocks={stockData.filtered}
@@ -319,6 +321,7 @@ export function Dashboard(): React.ReactElement {
             </div>
           )}
         </div>
+        )}
       </div>
 
       <OnboardingTour
