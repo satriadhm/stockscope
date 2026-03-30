@@ -361,3 +361,57 @@ model DataLineage {
   @@index([jobId]) // Link related transformation steps
   @@map("data_lineage")
 }
+
+// =============================================================================
+// PRODUCT ANALYTICS (Sprint 4)
+// =============================================================================
+
+// Analytics Events: Track user behavior and product usage
+model AnalyticsEvent {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Core event data
+  eventName   String // From Event Taxonomy V1
+  timestamp   DateTime // When event occurred
+  sessionId   String // Client session UUID
+  userId      String?  @db.ObjectId // Logged-in user (null if anonymous)
+  anonymousId String? // Anonymous user ID for stitching
+
+  // Context (auto-captured)
+  platform       String // "web" | "mobile_ios" | "mobile_android"
+  deviceType     String // "desktop" | "tablet" | "mobile"
+  locale         String // "id" | "en"
+  viewportWidth  Int?
+  viewportHeight Int?
+  userAgent      String?
+  ipAddress      String? // For geo-location (hashed)
+
+  // Page context
+  pageUrl   String?
+  pageTitle String?
+  referrer  String?
+
+  // UTM parameters
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmContent  String?
+  utmTerm     String?
+
+  // Event-specific properties (JSON)
+  properties Json?
+
+  // Processing metadata
+  receivedAt  DateTime  @default(now())
+  processedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([eventName, timestamp]) // For event-specific queries
+  @@index([sessionId]) // For session analysis
+  @@index([userId]) // For user-specific funnels
+  @@index([anonymousId]) // For identity stitching
+  @@index([timestamp]) // For time-series analysis
+  @@index([platform, deviceType]) // For platform reports
+  @@map("analytics_events")
+}
