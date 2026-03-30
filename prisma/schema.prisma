@@ -281,3 +281,83 @@ model AIScoreSnapshot {
   @@index([compositeScore]) // Find top/bottom performers
   @@map("ai_score_snapshots")
 }
+
+// =============================================================================
+// DATA QUALITY & LINEAGE (Sprint 3)
+// =============================================================================
+
+// Data Quality Snapshots: Track data freshness, completeness, and accuracy
+model DataQualitySnapshot {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  date       DateTime // Snapshot date
+  dataSource String // "IDX" | "Yahoo Finance" | "Company Reports" | "AI Engine"
+
+  // Freshness metrics
+  lastUpdateTime     DateTime // When data was last updated
+  updateDelayMinutes Int // Delay from expected update time
+  isStale            Boolean  @default(false) // True if delay > threshold
+
+  // Completeness metrics
+  expectedRecords  Int // Expected number of records
+  actualRecords    Int // Actual number of records
+  completenessRate Float // actualRecords / expectedRecords (0-100%)
+  missingFields    Int? // Count of null/missing required fields
+
+  // Accuracy metrics
+  validationsPassed Int // Number of validation checks passed
+  validationsFailed Int // Number of validation checks failed
+  accuracyRate      Float // validationsPassed / total validations (0-100%)
+
+  // Error tracking
+  errorCount  Int     @default(0)
+  errorSample String? // Sample error message for debugging
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date, dataSource]) // One snapshot per source per day
+  @@index([date]) // For time-series quality tracking
+  @@index([dataSource]) // For per-source quality reports
+  @@index([isStale]) // Find stale data sources
+  @@map("data_quality_snapshots")
+}
+
+// Data Lineage: Track data transformations and dependencies
+model DataLineage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  timestamp DateTime @default(now()) // When transformation occurred
+
+  // Source information
+  sourceType    String // "API" | "Database" | "File" | "Manual"
+  sourceName    String // Specific source identifier
+  sourceVersion String? // API version or file version
+
+  // Transformation information
+  transformationType String // "Extract" | "Transform" | "Load" | "Aggregate" | "Enrich"
+  transformationName String // Name of the transformation job
+  recordsProcessed   Int // Number of records processed
+  recordsSucceeded   Int // Number successfully processed
+  recordsFailed      Int // Number that failed
+
+  // Destination information
+  destinationType String // "Database" | "Cache" | "API" | "File"
+  destinationName String // Target table/collection name
+
+  // Performance metrics
+  durationMs    Int // Processing time in milliseconds
+  throughputRPS Float? // Records per second
+
+  // Metadata
+  jobId        String? // Unique job identifier for tracing
+  triggeredBy  String? // "Cron" | "Manual" | "Event" | "API"
+  status       String // "Success" | "Failed" | "Partial"
+  errorMessage String? // Error details if failed
+
+  @@index([timestamp]) // For time-series lineage tracking
+  @@index([sourceName]) // Trace data from specific sources
+  @@index([destinationName]) // Track what populates each destination
+  @@index([transformationName]) // Find all runs of specific jobs
+  @@index([status]) // Find failed transformations
+  @@index([jobId]) // Link related transformation steps
+  @@map("data_lineage")
+}
