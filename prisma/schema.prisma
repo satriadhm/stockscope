@@ -24,10 +24,10 @@ model User {
   plan          String    @default("free")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  
-  accounts      Account[]
-  sessions      Session[]
-  
+
+  accounts Account[]
+  sessions Session[]
+
   @@map("users")
 }
 
@@ -44,9 +44,9 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-  
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@unique([provider, providerAccountId])
   @@map("accounts")
 }
@@ -56,9 +56,9 @@ model Session {
   sessionToken String   @unique
   userId       String   @db.ObjectId
   expires      DateTime
-  
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@map("sessions")
 }
 
@@ -67,7 +67,7 @@ model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
-  
+
   @@unique([identifier, token])
   @@map("verification_tokens")
 }
@@ -81,13 +81,13 @@ model Watchlist {
   userId      String   @db.ObjectId
   name        String
   description String?
-  color       String?  // Hex color for UI categorization
+  color       String? // Hex color for UI categorization
   position    Int      @default(0) // For drag-drop ordering
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
-  items       WatchlistItem[]
-  
+
+  items WatchlistItem[]
+
   @@index([userId])
   @@index([userId, position])
   @@map("watchlists")
@@ -96,13 +96,13 @@ model Watchlist {
 model WatchlistItem {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   watchlistId String   @db.ObjectId
-  ticker      String   // Stock ticker (e.g., "BBCA")
+  ticker      String // Stock ticker (e.g., "BBCA")
   addedAt     DateTime @default(now())
   position    Int      @default(0) // For drag-drop ordering within watchlist
-  notes       String?  // Optional user notes
-  
-  watchlist   Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
-  
+  notes       String? // Optional user notes
+
+  watchlist Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+
   @@unique([watchlistId, ticker]) // Prevent duplicate stocks in same watchlist
   @@index([watchlistId, position])
   @@map("watchlist_items")
@@ -117,10 +117,10 @@ model SavedScreener {
   userId      String   @db.ObjectId
   name        String
   description String?
-  filters     Json     // { sector, aiTier, govTier, minScore, maxScore, sortBy, sortOrder, searchQuery }
+  filters     Json // { sector, aiTier, govTier, minScore, maxScore, sortBy, sortOrder, searchQuery }
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   @@index([userId])
   @@index([userId, createdAt])
   @@map("saved_screeners")
@@ -131,17 +131,17 @@ model SavedScreener {
 // =============================================================================
 
 model PriceAlert {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId      String   @db.ObjectId
-  ticker      String   // Stock ticker symbol
-  condition   String   // "above" | "below"
-  targetPrice Float
-  isActive    Boolean  @default(true)
-  triggeredAt DateTime?
-  lastCheckedAt DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String    @db.ObjectId
+  ticker        String // Stock ticker symbol
+  condition     String // "above" | "below"
+  targetPrice   Float
+  isActive      Boolean   @default(true)
+  triggeredAt   DateTime?
+  lastCheckedAt DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
   @@index([userId])
   @@index([isActive])
   @@index([ticker, isActive])
@@ -153,15 +153,77 @@ model PriceAlert {
 // =============================================================================
 
 model UserPreferences {
-  id                  String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId              String  @unique @db.ObjectId
-  language            String  @default("en") // "en" | "id"
-  theme               String  @default("dark") // "light" | "dark" | "system"
-  defaultView         String  @default("table") // "table" | "cards"
-  emailNotifications  Boolean @default(true)
-  pushNotifications   Boolean @default(false)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String   @unique @db.ObjectId
+  language           String   @default("en") // "en" | "id"
+  theme              String   @default("dark") // "light" | "dark" | "system"
+  defaultView        String   @default("table") // "table" | "cards"
+  emailNotifications Boolean  @default(true)
+  pushNotifications  Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
   @@map("user_preferences")
+}
+
+// =============================================================================
+// RESEARCH DATA PIPELINE (Sprint 3)
+// =============================================================================
+
+// Master Dataset: Static company information (rarely changes)
+model CompanyMaster {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  ticker       String    @unique // Stock ticker symbol (e.g., "BBCA")
+  issuerName   String // Official company name
+  sector       String // Industry sector
+  subsector    String? // Industry subsector
+  listingDate  DateTime? // IPO date
+  sharesListed BigInt? // Total shares outstanding
+  isin         String? // International Securities Identification Number
+  boardType    String? // "Main Board" | "Development Board" | "Acceleration Board"
+  isActive     Boolean   @default(true) // Delisting status
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  dailyFacts DailyFact[]
+
+  @@index([sector])
+  @@index([isActive])
+  @@map("company_master")
+}
+
+// Daily Facts: Time-series data that changes every day
+model DailyFact {
+  id     String   @id @default(auto()) @map("_id") @db.ObjectId
+  ticker String // Foreign key to CompanyMaster
+  date   DateTime // Trading date (stored as start-of-day UTC)
+
+  // Price & Volume
+  open      Float?
+  high      Float?
+  low       Float?
+  close     Float
+  volume    BigInt?
+  marketCap Float? // Market capitalization in IDR
+
+  // Technical Indicators (pre-computed)
+  sma20 Float? // 20-day simple moving average
+  sma50 Float? // 50-day simple moving average
+  rsi14 Float? // 14-day relative strength index
+
+  // Fundamental Metrics (from quarterly reports)
+  pe  Float? // Price-to-earnings ratio
+  pb  Float? // Price-to-book ratio
+  roe Float? // Return on equity
+  der Float? // Debt-to-equity ratio
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company CompanyMaster @relation(fields: [ticker], references: [ticker], onDelete: Cascade)
+
+  @@unique([ticker, date]) // One record per stock per day
+  @@index([date]) // For date-range queries across all stocks
+  @@map("daily_facts")
 }
