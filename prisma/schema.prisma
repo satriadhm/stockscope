@@ -227,3 +227,27 @@ model DailyFact {
   @@index([date]) // For date-range queries across all stocks
   @@map("daily_facts")
 }
+
+// =============================================================================
+// OWNERSHIP DATA PIPELINE (Sprint 3)
+// =============================================================================
+
+// Ownership Snapshots: Daily ownership data from IDX reports
+model OwnershipSnapshot {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  ticker     String // Stock ticker symbol
+  date       DateTime // Snapshot date (daily updates)
+  holderName String // Shareholder name
+  shares     BigInt // Number of shares held
+  percentage Float // Ownership percentage (0-100)
+  holderType String? // "Institution" | "Individual" | "Government" | "Foreign"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([ticker, date, holderName]) // One record per holder per stock per day
+  @@index([ticker, date]) // For single-stock ownership queries
+  @@index([date]) // For market-wide snapshots
+  @@index([holderName]) // For tracking specific holders across stocks
+  @@map("ownership_snapshots")
+}
