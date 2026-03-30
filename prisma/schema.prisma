@@ -467,3 +467,50 @@ model UserSession {
   @@index([didSignup, didUpgrade, didPurchase]) // For conversion analysis
   @@map("user_sessions")
 }
+
+// Conversion Funnels: Daily aggregated funnel metrics
+model ConversionFunnel {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Funnel identification
+  funnelName String // e.g., "signup_funnel", "purchase_funnel"
+  date       DateTime // Aggregation date
+
+  // Funnel steps with counts
+  step1Name  String
+  step1Count Int
+
+  step2Name  String
+  step2Count Int
+  step2Rate  Float // Conversion rate from step 1 to 2
+
+  step3Name  String?
+  step3Count Int?
+  step3Rate  Float? // Conversion rate from step 2 to 3
+
+  step4Name  String?
+  step4Count Int?
+  step4Rate  Float? // Conversion rate from step 3 to 4
+
+  step5Name  String?
+  step5Count Int?
+  step5Rate  Float? // Conversion rate from step 4 to 5
+
+  // Overall funnel metrics
+  overallRate Float // End-to-end conversion rate
+  dropoffStep String? // Step with highest drop-off
+  dropoffRate Float? // Drop-off percentage at worst step
+
+  // Segmentation (optional)
+  platform    String? // "web", "mobile_ios", "mobile_android"
+  utmSource   String? // Campaign attribution
+  utmMedium   String?
+  utmCampaign String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([funnelName, date, platform, utmSource, utmMedium, utmCampaign])
+  @@index([funnelName, date]) // For time-series queries
+  @@index([utmSource, utmMedium, utmCampaign]) // For attribution
+  @@map("conversion_funnels")
+}
