@@ -415,3 +415,55 @@ model AnalyticsEvent {
   @@index([platform, deviceType]) // For platform reports
   @@map("analytics_events")
 }
+
+// User Sessions: Aggregated session data with identity stitching
+model UserSession {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Session identification
+  sessionId   String  @unique // Client session UUID
+  userId      String? @db.ObjectId // Stitched user ID
+  anonymousId String // Original anonymous ID
+
+  // Session timeline
+  startTime DateTime // First event timestamp
+  endTime   DateTime? // Last event timestamp (null if ongoing)
+  duration  Int? // Duration in seconds
+
+  // Session context
+  platform   String
+  deviceType String
+  locale     String
+
+  // Entry point
+  landingPage String?
+  referrer    String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmContent  String?
+  utmTerm     String?
+
+  // Activity summary
+  eventCount Int @default(0)
+  pageViews  Int @default(0)
+
+  // Conversion indicators
+  didSignup   Boolean @default(false)
+  didUpgrade  Boolean @default(false)
+  didPurchase Boolean @default(false)
+
+  // Identity stitching metadata
+  wasStitched Boolean   @default(false)
+  stitchedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId]) // For user journey analysis
+  @@index([anonymousId]) // For identity stitching
+  @@index([startTime]) // For time-series queries
+  @@index([utmSource, utmMedium, utmCampaign]) // For attribution
+  @@index([didSignup, didUpgrade, didPurchase]) // For conversion analysis
+  @@map("user_sessions")
+}
