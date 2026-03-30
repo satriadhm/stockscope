@@ -147,3 +147,21 @@ model PriceAlert {
   @@index([ticker, isActive])
   @@map("price_alerts")
 }
+
+// =============================================================================
+// USER PREFERENCES (Sprint 2)
+// =============================================================================
+
+model UserPreferences {
+  id                  String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId              String  @unique @db.ObjectId
+  language            String  @default("en") // "en" | "id"
+  theme               String  @default("dark") // "light" | "dark" | "system"
+  defaultView         String  @default("table") // "table" | "cards"
+  emailNotifications  Boolean @default(true)
+  pushNotifications   Boolean @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  @@map("user_preferences")
+}
