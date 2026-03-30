@@ -1,6 +1,6 @@
 // Stockscope Database Schema
 // Version controlled with Prisma migrations
-// Last updated: 2026-03-29
+// Last updated: 2026-03-30
 
 generator client {
   provider = "prisma-client-js"
@@ -8,6 +8,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 // =============================================================================
@@ -69,4 +70,40 @@ model VerificationToken {
   
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+// =============================================================================
+// USER-OWNED DATA (Sprint 2)
+// =============================================================================
+
+model Watchlist {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  name        String
+  description String?
+  color       String?  // Hex color for UI categorization
+  position    Int      @default(0) // For drag-drop ordering
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  items       WatchlistItem[]
+  
+  @@index([userId])
+  @@index([userId, position])
+  @@map("watchlists")
+}
+
+model WatchlistItem {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  watchlistId String   @db.ObjectId
+  ticker      String   // Stock ticker (e.g., "BBCA")
+  addedAt     DateTime @default(now())
+  position    Int      @default(0) // For drag-drop ordering within watchlist
+  notes       String?  // Optional user notes
+  
+  watchlist   Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+  
+  @@unique([watchlistId, ticker]) // Prevent duplicate stocks in same watchlist
+  @@index([watchlistId, position])
+  @@map("watchlist_items")
 }
