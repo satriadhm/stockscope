@@ -107,3 +107,21 @@ model WatchlistItem {
   @@index([watchlistId, position])
   @@map("watchlist_items")
 }
+
+// =============================================================================
+// SAVED SCREENERS (Sprint 2)
+// =============================================================================
+
+model SavedScreener {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  name        String
+  description String?
+  filters     Json     // { sector, aiTier, govTier, minScore, maxScore, sortBy, sortOrder, searchQuery }
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([userId, createdAt])
+  @@map("saved_screeners")
+}
