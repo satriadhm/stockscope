@@ -196,7 +196,7 @@ export const FEATURE_GATES: Record<FeatureGate, FeatureConfig> = {
 // PLAN TIER HIERARCHY
 // =============================================================================
 
-const PLAN_HIERARCHY: Record<PlanTier, number> = {
+export const PLAN_HIERARCHY: Record<PlanTier, number> = {
   free: 0,
   premium: 1,
   pro: 2,
