@@ -11,6 +11,18 @@ export type ApiScope =
   | 'write:alerts'
   | 'write:screeners';
 
+// Scope descriptions for UI display
+export const API_SCOPES: Record<ApiScope, string> = {
+  'read:stocks': 'Read stock prices and basic information',
+  'read:screener': 'Access screener with basic filters',
+  'read:ownership': 'View institutional ownership data',
+  'read:financials': 'Access financial statements and ratios',
+  'read:historical': 'Query historical price and volume data',
+  'write:watchlist': 'Create and manage watchlists',
+  'write:alerts': 'Set up price alerts',
+  'write:screeners': 'Create custom screener configurations',
+};
+
 // =============================================================================
 // PLAN-BASED SCOPE PACKAGES
 // =============================================================================
