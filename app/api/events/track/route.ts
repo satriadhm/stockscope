@@ -69,6 +69,9 @@ const VALID_EVENT_NAMES = [
   'upgrade_button_clicked',
   'feature_locked_viewed',
   
+  // Experiment events (A/B testing)
+  'experiment_interaction',
+  
   // Search events
   'search_query_entered',
   'search_result_clicked',
