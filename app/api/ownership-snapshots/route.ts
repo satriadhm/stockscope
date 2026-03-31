@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { withFeatureGateHandler } from '@/lib/feature-gate-middleware'
 
 /**
  * GET /api/ownership-snapshots
@@ -23,8 +24,10 @@ import { prisma } from '@/lib/prisma'
  *   - holderType: Filter by type (e.g., ?holderType=Institution)
  *   - minPercentage: Min ownership % (e.g., ?minPercentage=5)
  *   - limit: Max records (default: 100, max: 1000)
+ * 
+ * FEATURE GATE: Requires Premium plan for ownership data
  */
-export async function GET(request: NextRequest) {
+export const GET = withFeatureGateHandler('stocks:ownership', async (request: NextRequest) => {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.email) {
@@ -104,7 +107,7 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+});
 
 /**
  * POST /api/ownership-snapshots

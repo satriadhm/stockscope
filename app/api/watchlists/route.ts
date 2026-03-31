@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import { prisma } from '@/lib/prisma';
+import { checkActionLimit } from '@/lib/feature-gate-middleware';
 
 // GET /api/watchlists - List all watchlists for authenticated user
 export async function GET() {
@@ -95,6 +96,25 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { name, description, color } = body;
+
+    // Check watchlist limits based on plan
+    const currentWatchlists = await prisma.watchlist.count({
+      where: { userId: user.id },
+    });
+
+    const limitCheck = await checkActionLimit('watchlists', currentWatchlists);
+    if (!limitCheck.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Watchlist limit reached',
+          message: limitCheck.message,
+          currentCount: currentWatchlists,
+          limit: limitCheck.limit,
+          upgradeUrl: '/pricing',
+        },
+        { status: 402 }
+      );
+    }
 
     // Validation
     if (!name || typeof name !== 'string' || name.trim().length === 0) {

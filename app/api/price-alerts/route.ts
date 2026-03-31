@@ -8,9 +8,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import { prisma } from '@/lib/prisma';
+import { withFeatureGateHandler, checkActionLimit } from '@/lib/feature-gate-middleware';
 
 // GET /api/price-alerts - List all price alerts for authenticated user
-export async function GET(request: NextRequest) {
+// FEATURE GATE: Requires Premium plan
+export const GET = withFeatureGateHandler('alerts:basic', async (request: NextRequest) => {
   try {
     const session = await getServerSession(authOptions);
     
@@ -51,10 +53,11 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
 // POST /api/price-alerts - Create new price alert
-export async function POST(request: NextRequest) {
+// FEATURE GATE: Requires Premium plan + check alert limits
+export const POST = withFeatureGateHandler('alerts:basic', async (request: NextRequest) => {
   try {
     const session = await getServerSession(authOptions);
     
@@ -78,6 +81,28 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { ticker, condition, targetPrice } = body;
+
+    // Check alert limits based on plan
+    const currentAlerts = await prisma.priceAlert.count({
+      where: {
+        userId: user.id,
+        isActive: true,
+      },
+    });
+
+    const limitCheck = await checkActionLimit('alerts', currentAlerts);
+    if (!limitCheck.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Alert limit reached',
+          message: limitCheck.message,
+          currentCount: currentAlerts,
+          limit: limitCheck.limit,
+          upgradeUrl: '/pricing',
+        },
+        { status: 402 }
+      );
+    }
 
     // Validation
     if (!ticker || typeof ticker !== 'string' || ticker.trim().length === 0) {
@@ -139,4 +164,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

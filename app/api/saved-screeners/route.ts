@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import { prisma } from '@/lib/prisma';
+import { checkActionLimit } from '@/lib/feature-gate-middleware';
 
 // GET /api/saved-screeners - List all saved screeners for authenticated user
 export async function GET() {
@@ -80,6 +81,25 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { name, description, filters } = body;
+
+    // Check saved screener limits based on plan
+    const currentScreeners = await prisma.savedScreener.count({
+      where: { userId: user.id },
+    });
+
+    const limitCheck = await checkActionLimit('savedScreeners', currentScreeners);
+    if (!limitCheck.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Saved screener limit reached',
+          message: limitCheck.message,
+          currentCount: currentScreeners,
+          limit: limitCheck.limit,
+          upgradeUrl: '/pricing',
+        },
+        { status: 402 }
+      );
+    }
 
     // Validation
     if (!name || typeof name !== 'string' || name.trim().length === 0) {

@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { withFeatureGateHandler } from '@/lib/feature-gate-middleware'
 
 /**
  * GET /api/ai-scores
@@ -24,8 +25,10 @@ import { prisma } from '@/lib/prisma'
  *   - startDate: Date range start (e.g., ?startDate=2024-01-01)
  *   - endDate: Date range end (e.g., ?endDate=2024-03-29)
  *   - limit: Max records (default: 100, max: 1000)
+ * 
+ * FEATURE GATE: Requires Premium plan for AI insights
  */
-export async function GET(request: NextRequest) {
+export const GET = withFeatureGateHandler('ai:insights', async (request: NextRequest) => {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.email) {
@@ -108,7 +111,7 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+});
 
 /**
  * POST /api/ai-scores
