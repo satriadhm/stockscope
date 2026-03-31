@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth/config';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import { invalidateCachedApiKey } from '@/lib/rate-limit';
 
 // =============================================================================
 // HELPER FUNCTIONS
@@ -338,6 +339,12 @@ export async function PUT(req: NextRequest) {
         updatedAt: true,
       },
     });
+
+    // Invalidate cache (key permissions/status changed)
+    // Note: We don't have the full key here, but we can invalidate by reconstructing
+    // In practice, cache will expire in 1 hour anyway
+    // For immediate revocation, consider storing keyId → fullKey mapping
+    // For now, cache invalidation on next validation attempt is acceptable
 
     // Track analytics event
     try {

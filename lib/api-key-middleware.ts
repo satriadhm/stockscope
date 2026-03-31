@@ -4,6 +4,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcrypt';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { getCachedApiKey, cacheValidatedApiKey } from '@/lib/rate-limit';
 
 // =============================================================================
 // TYPES
@@ -36,14 +38,21 @@ export interface ApiUsageMetrics {
 /**
  * Validate API key from request header
  * Returns validated key record or null if invalid
+ * 
+ * Performance: Uses Redis cache (1-hour TTL) to avoid bcrypt O(n) bottleneck
  */
 export async function validateApiKey(
   apiKey: string
 ): Promise<ValidatedApiKey | null> {
   try {
-    // Find key by comparing hash
-    // Note: This queries ALL keys and compares hashes (slow!)
-    // TODO SP6-03: Cache validated keys in Redis
+    // Check Redis cache first (FAST PATH: 1ms)
+    const cached = await getCachedApiKey(apiKey);
+    if (cached) {
+      return cached;
+    }
+
+    // SLOW PATH: Query database and validate with bcrypt
+    // This only happens on cache miss (once per hour per key)
     const allKeys = await prisma.apiKey.findMany({
       where: { isActive: true },
       select: {
@@ -61,7 +70,7 @@ export async function validateApiKey(
     for (const keyRecord of allKeys) {
       const isValid = await bcrypt.compare(apiKey, keyRecord.keyHash);
       if (isValid) {
-        return {
+        const validatedKey: ValidatedApiKey = {
           id: keyRecord.id,
           userId: keyRecord.userId,
           keyPrefix: keyRecord.keyPrefix,
@@ -70,6 +79,11 @@ export async function validateApiKey(
           environment: keyRecord.environment,
           ipWhitelist: keyRecord.ipWhitelist,
         };
+
+        // Cache validated key (1-hour TTL)
+        await cacheValidatedApiKey(apiKey, validatedKey, 3600);
+
+        return validatedKey;
       }
     }
 
@@ -224,9 +238,34 @@ export async function apiKeyMiddleware(req: NextRequest): Promise<NextResponse> 
     );
   }
 
-  // Check rate limit (SP6-03: Redis-based enforcement)
-  // For now, we just track usage. Enforcement in SP6-03.
-  // TODO SP6-03: Implement Redis sliding window rate limiting
+  // Check rate limit (Redis sliding window)
+  const rateLimit = await checkRateLimit(
+    validatedKey.id,
+    validatedKey.rateLimit,
+    3600 // 1 hour window
+  );
+
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { 
+        error: 'Rate limit exceeded',
+        message: `You have exceeded your rate limit of ${rateLimit.limit} requests per hour`,
+        limit: rateLimit.limit,
+        remaining: 0,
+        reset: rateLimit.reset,
+        retryAfter: rateLimit.retryAfter,
+      },
+      { 
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': rateLimit.limit.toString(),
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': rateLimit.reset.toString(),
+          'Retry-After': rateLimit.retryAfter?.toString() || '3600',
+        },
+      }
+    );
+  }
 
   // Check scopes (SP6-04: Scope-based authorization)
   // For now, allow all. Scope validation in SP6-04.
@@ -247,6 +286,11 @@ export async function apiKeyMiddleware(req: NextRequest): Promise<NextResponse> 
   // Attach API key info to request headers (for downstream use)
   response.headers.set('X-API-Key-Id', validatedKey.id);
   response.headers.set('X-API-User-Id', validatedKey.userId);
+
+  // Attach rate limit headers to response
+  response.headers.set('X-RateLimit-Limit', rateLimit.limit.toString());
+  response.headers.set('X-RateLimit-Remaining', rateLimit.remaining.toString());
+  response.headers.set('X-RateLimit-Reset', rateLimit.reset.toString());
 
   // Track usage metrics (async, non-blocking)
   const responseTime = Date.now() - startTime;
