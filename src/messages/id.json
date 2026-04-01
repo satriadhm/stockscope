@@ -113,7 +113,10 @@
     "loading": "Memuat…",
     "methodology": "Metodologi skor",
     "methodologyBody": "Skor komposit menggabungkan: <strong>Fundamental (35%)</strong> · <strong>Teknikal (30%)</strong> · <strong>Sentimen (20%)</strong> · <strong>Likuiditas (15%)</strong>",
-    "loadError": "Gagal memuat saham"
+    "loadError": "Gagal memuat saham",
+    "noResultsTitle": "Tidak ada saham yang cocok",
+    "noResultsDescription": "Coba cari dengan kode ticker atau nama perusahaan yang berbeda. Pastikan ejaannya benar atau sesuaikan filter Anda.",
+    "clearFilters": "Hapus semua filter"
   },
   "filterPanel": {
     "filters": "Filter",

@@ -1,0 +1,727 @@
+// Stockscope Database Schema
+// Version controlled with Prisma migrations
+// Last updated: 2026-03-30
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// USER MANAGEMENT (Current schema from NextAuth)
+// =============================================================================
+
+model User {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  plan          String    @default("free")
+  
+  // Subscription management (Sprint 7)
+  cancelledAt       DateTime?
+  discountPercent   Int? // Retention discount percentage
+  discountExpiresAt DateTime? // When discount expires
+  pausedUntil       DateTime? // Subscription pause end date
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// =============================================================================
+// USER-OWNED DATA (Sprint 2)
+// =============================================================================
+
+model Watchlist {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  name        String
+  description String?
+  color       String? // Hex color for UI categorization
+  position    Int      @default(0) // For drag-drop ordering
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items WatchlistItem[]
+
+  @@index([userId])
+  @@index([userId, position])
+  @@map("watchlists")
+}
+
+model WatchlistItem {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  watchlistId String   @db.ObjectId
+  ticker      String // Stock ticker (e.g., "BBCA")
+  addedAt     DateTime @default(now())
+  position    Int      @default(0) // For drag-drop ordering within watchlist
+  notes       String? // Optional user notes
+
+  watchlist Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+
+  @@unique([watchlistId, ticker]) // Prevent duplicate stocks in same watchlist
+  @@index([watchlistId, position])
+  @@map("watchlist_items")
+}
+
+// =============================================================================
+// SAVED SCREENERS (Sprint 2)
+// =============================================================================
+
+model SavedScreener {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  name        String
+  description String?
+  filters     Json // { sector, aiTier, govTier, minScore, maxScore, sortBy, sortOrder, searchQuery }
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([userId, createdAt])
+  @@map("saved_screeners")
+}
+
+// =============================================================================
+// PRICE ALERTS (Sprint 2)
+// =============================================================================
+
+model PriceAlert {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String    @db.ObjectId
+  ticker        String // Stock ticker symbol
+  condition     String // "above" | "below"
+  targetPrice   Float
+  isActive      Boolean   @default(true)
+  triggeredAt   DateTime?
+  lastCheckedAt DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([isActive])
+  @@index([ticker, isActive])
+  @@map("price_alerts")
+}
+
+// =============================================================================
+// USER PREFERENCES (Sprint 2)
+// =============================================================================
+
+model UserPreferences {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String   @unique @db.ObjectId
+  language           String   @default("en") // "en" | "id"
+  theme              String   @default("dark") // "light" | "dark" | "system"
+  defaultView        String   @default("table") // "table" | "cards"
+  emailNotifications Boolean  @default(true)
+  pushNotifications  Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("user_preferences")
+}
+
+// =============================================================================
+// RESEARCH DATA PIPELINE (Sprint 3)
+// =============================================================================
+
+// Master Dataset: Static company information (rarely changes)
+model CompanyMaster {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  ticker       String    @unique // Stock ticker symbol (e.g., "BBCA")
+  issuerName   String // Official company name
+  sector       String // Industry sector
+  subsector    String? // Industry subsector
+  listingDate  DateTime? // IPO date
+  sharesListed BigInt? // Total shares outstanding
+  isin         String? // International Securities Identification Number
+  boardType    String? // "Main Board" | "Development Board" | "Acceleration Board"
+  isActive     Boolean   @default(true) // Delisting status
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  dailyFacts DailyFact[]
+
+  @@index([sector])
+  @@index([isActive])
+  @@map("company_master")
+}
+
+// Daily Facts: Time-series data that changes every day
+model DailyFact {
+  id     String   @id @default(auto()) @map("_id") @db.ObjectId
+  ticker String // Foreign key to CompanyMaster
+  date   DateTime // Trading date (stored as start-of-day UTC)
+
+  // Price & Volume
+  open      Float?
+  high      Float?
+  low       Float?
+  close     Float
+  volume    BigInt?
+  marketCap Float? // Market capitalization in IDR
+
+  // Technical Indicators (pre-computed)
+  sma20 Float? // 20-day simple moving average
+  sma50 Float? // 50-day simple moving average
+  rsi14 Float? // 14-day relative strength index
+
+  // Fundamental Metrics (from quarterly reports)
+  pe  Float? // Price-to-earnings ratio
+  pb  Float? // Price-to-book ratio
+  roe Float? // Return on equity
+  der Float? // Debt-to-equity ratio
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company CompanyMaster @relation(fields: [ticker], references: [ticker], onDelete: Cascade)
+
+  @@unique([ticker, date]) // One record per stock per day
+  @@index([date]) // For date-range queries across all stocks
+  @@map("daily_facts")
+}
+
+// =============================================================================
+// OWNERSHIP DATA PIPELINE (Sprint 3)
+// =============================================================================
+
+// Ownership Snapshots: Daily ownership data from IDX reports
+model OwnershipSnapshot {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  ticker     String // Stock ticker symbol
+  date       DateTime // Snapshot date (daily updates)
+  holderName String // Shareholder name
+  shares     BigInt // Number of shares held
+  percentage Float // Ownership percentage (0-100)
+  holderType String? // "Institution" | "Individual" | "Government" | "Foreign"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([ticker, date, holderName]) // One record per holder per stock per day
+  @@index([ticker, date]) // For single-stock ownership queries
+  @@index([date]) // For market-wide snapshots
+  @@index([holderName]) // For tracking specific holders across stocks
+  @@map("ownership_snapshots")
+}
+
+// AI Score Snapshots: Track AI-generated scores with model versioning
+model AIScoreSnapshot {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  ticker       String // Stock ticker symbol
+  date         DateTime // Score generation date
+  modelVersion String // AI model version (e.g., "claude-sonnet-4.5-v1")
+
+  // Component scores (0-100 scale)
+  fundamentalScore Float? // Financial health analysis
+  technicalScore   Float? // Price/volume patterns
+  sentimentScore   Float? // News/social sentiment
+  liquidityScore   Float? // Trading volume/spread
+  governanceScore  Float? // Ownership structure
+  compositeScore   Float // Weighted average of all scores
+
+  // Score metadata
+  confidence Float? // Model confidence (0-1)
+  reasoning  String? // Brief explanation of score
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([ticker, date, modelVersion]) // One score per model per stock per day
+  @@index([ticker, date]) // Historical scores for single stock
+  @@index([date]) // Market-wide scores for specific date
+  @@index([modelVersion]) // Compare different model versions
+  @@index([compositeScore]) // Find top/bottom performers
+  @@map("ai_score_snapshots")
+}
+
+// =============================================================================
+// DATA QUALITY & LINEAGE (Sprint 3)
+// =============================================================================
+
+// Data Quality Snapshots: Track data freshness, completeness, and accuracy
+model DataQualitySnapshot {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  date       DateTime // Snapshot date
+  dataSource String // "IDX" | "Yahoo Finance" | "Company Reports" | "AI Engine"
+
+  // Freshness metrics
+  lastUpdateTime     DateTime // When data was last updated
+  updateDelayMinutes Int // Delay from expected update time
+  isStale            Boolean  @default(false) // True if delay > threshold
+
+  // Completeness metrics
+  expectedRecords  Int // Expected number of records
+  actualRecords    Int // Actual number of records
+  completenessRate Float // actualRecords / expectedRecords (0-100%)
+  missingFields    Int? // Count of null/missing required fields
+
+  // Accuracy metrics
+  validationsPassed Int // Number of validation checks passed
+  validationsFailed Int // Number of validation checks failed
+  accuracyRate      Float // validationsPassed / total validations (0-100%)
+
+  // Error tracking
+  errorCount  Int     @default(0)
+  errorSample String? // Sample error message for debugging
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date, dataSource]) // One snapshot per source per day
+  @@index([date]) // For time-series quality tracking
+  @@index([dataSource]) // For per-source quality reports
+  @@index([isStale]) // Find stale data sources
+  @@map("data_quality_snapshots")
+}
+
+// Data Lineage: Track data transformations and dependencies
+model DataLineage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  timestamp DateTime @default(now()) // When transformation occurred
+
+  // Source information
+  sourceType    String // "API" | "Database" | "File" | "Manual"
+  sourceName    String // Specific source identifier
+  sourceVersion String? // API version or file version
+
+  // Transformation information
+  transformationType String // "Extract" | "Transform" | "Load" | "Aggregate" | "Enrich"
+  transformationName String // Name of the transformation job
+  recordsProcessed   Int // Number of records processed
+  recordsSucceeded   Int // Number successfully processed
+  recordsFailed      Int // Number that failed
+
+  // Destination information
+  destinationType String // "Database" | "Cache" | "API" | "File"
+  destinationName String // Target table/collection name
+
+  // Performance metrics
+  durationMs    Int // Processing time in milliseconds
+  throughputRPS Float? // Records per second
+
+  // Metadata
+  jobId        String? // Unique job identifier for tracing
+  triggeredBy  String? // "Cron" | "Manual" | "Event" | "API"
+  status       String // "Success" | "Failed" | "Partial"
+  errorMessage String? // Error details if failed
+
+  @@index([timestamp]) // For time-series lineage tracking
+  @@index([sourceName]) // Trace data from specific sources
+  @@index([destinationName]) // Track what populates each destination
+  @@index([transformationName]) // Find all runs of specific jobs
+  @@index([status]) // Find failed transformations
+  @@index([jobId]) // Link related transformation steps
+  @@map("data_lineage")
+}
+
+// =============================================================================
+// PRODUCT ANALYTICS (Sprint 4)
+// =============================================================================
+
+// Analytics Events: Track user behavior and product usage
+model AnalyticsEvent {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Core event data
+  eventName   String // From Event Taxonomy V1
+  timestamp   DateTime // When event occurred
+  sessionId   String // Client session UUID
+  userId      String?  @db.ObjectId // Logged-in user (null if anonymous)
+  anonymousId String? // Anonymous user ID for stitching
+
+  // Context (auto-captured)
+  platform       String // "web" | "mobile_ios" | "mobile_android"
+  deviceType     String // "desktop" | "tablet" | "mobile"
+  locale         String // "id" | "en"
+  viewportWidth  Int?
+  viewportHeight Int?
+  userAgent      String?
+  ipAddress      String? // For geo-location (hashed)
+
+  // Page context
+  pageUrl   String?
+  pageTitle String?
+  referrer  String?
+
+  // UTM parameters
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmContent  String?
+  utmTerm     String?
+
+  // Event-specific properties (JSON)
+  properties Json?
+
+  // Processing metadata
+  receivedAt  DateTime  @default(now())
+  processedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([eventName, timestamp]) // For event-specific queries
+  @@index([sessionId]) // For session analysis
+  @@index([userId]) // For user-specific funnels
+  @@index([anonymousId]) // For identity stitching
+  @@index([timestamp]) // For time-series analysis
+  @@index([platform, deviceType]) // For platform reports
+  @@map("analytics_events")
+}
+
+// User Sessions: Aggregated session data with identity stitching
+model UserSession {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Session identification
+  sessionId   String  @unique // Client session UUID
+  userId      String? @db.ObjectId // Stitched user ID
+  anonymousId String // Original anonymous ID
+
+  // Session timeline
+  startTime DateTime // First event timestamp
+  endTime   DateTime? // Last event timestamp (null if ongoing)
+  duration  Int? // Duration in seconds
+
+  // Session context
+  platform   String
+  deviceType String
+  locale     String
+
+  // Entry point
+  landingPage String?
+  referrer    String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmContent  String?
+  utmTerm     String?
+
+  // Activity summary
+  eventCount Int @default(0)
+  pageViews  Int @default(0)
+
+  // Conversion indicators
+  didSignup   Boolean @default(false)
+  didUpgrade  Boolean @default(false)
+  didPurchase Boolean @default(false)
+
+  // Identity stitching metadata
+  wasStitched Boolean   @default(false)
+  stitchedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId]) // For user journey analysis
+  @@index([anonymousId]) // For identity stitching
+  @@index([startTime]) // For time-series queries
+  @@index([utmSource, utmMedium, utmCampaign]) // For attribution
+  @@index([didSignup, didUpgrade, didPurchase]) // For conversion analysis
+  @@map("user_sessions")
+}
+
+// Conversion Funnels: Daily aggregated funnel metrics
+model ConversionFunnel {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Funnel identification
+  funnelName String // e.g., "signup_funnel", "purchase_funnel"
+  date       DateTime // Aggregation date
+
+  // Funnel steps with counts
+  step1Name  String
+  step1Count Int
+
+  step2Name  String
+  step2Count Int
+  step2Rate  Float // Conversion rate from step 1 to 2
+
+  step3Name  String?
+  step3Count Int?
+  step3Rate  Float? // Conversion rate from step 2 to 3
+
+  step4Name  String?
+  step4Count Int?
+  step4Rate  Float? // Conversion rate from step 3 to 4
+
+  step5Name  String?
+  step5Count Int?
+  step5Rate  Float? // Conversion rate from step 4 to 5
+
+  // Overall funnel metrics
+  overallRate Float // End-to-end conversion rate
+  dropoffStep String? // Step with highest drop-off
+  dropoffRate Float? // Drop-off percentage at worst step
+
+  // Segmentation (optional)
+  platform    String? // "web", "mobile_ios", "mobile_android"
+  utmSource   String? // Campaign attribution
+  utmMedium   String?
+  utmCampaign String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([funnelName, date, platform, utmSource, utmMedium, utmCampaign])
+  @@index([funnelName, date]) // For time-series queries
+  @@index([utmSource, utmMedium, utmCampaign]) // For attribution
+  @@map("conversion_funnels")
+}
+
+// =============================================================================
+// BILLING & SUBSCRIPTIONS (Sprint 5)
+// =============================================================================
+
+// User subscription tracking with Midtrans integration
+model Subscription {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+
+  // Plan details
+  planId String // "free", "premium", "pro"
+  status String // "active", "cancelled", "expired", "past_due", "trialing"
+
+  // Lifecycle timestamps
+  startDate   DateTime
+  endDate     DateTime? // Null for active subscriptions
+  trialEnd    DateTime? // For trial periods
+  cancelledAt DateTime?
+  cancelReason String? // User-provided cancellation feedback
+
+  // Billing cycle
+  billingCycle String? // "monthly", "annual"
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+
+  // Payment gateway integration
+  midtransSubscriptionId String? // Midtrans subscription ID
+  midtransCustomerId     String? // Midtrans customer ID
+
+  // Metadata
+  metadata Json? // Flexible field for additional data
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes for common queries
+  @@index([userId]) // User's subscriptions
+  @@index([status]) // Active/expired subscriptions
+  @@index([endDate]) // Expiring subscriptions
+  @@index([currentPeriodEnd]) // Upcoming renewals
+  @@unique([userId, planId, status]) // Prevent duplicate active subscriptions (also serves as compound index)
+  @@map("subscriptions")
+}
+
+// Payment transaction ledger with idempotency and audit trail
+model PaymentTransaction {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+
+  // Idempotency & deduplication
+  idempotencyKey String  @unique // Prevents duplicate charges
+  orderId        String  @unique // Midtrans order_id
+
+  // Transaction details
+  amount          Float
+  currency        String @default("IDR")
+  status          String // "pending", "success", "failed", "refunded", "expired"
+  transactionType String // "subscription", "upgrade", "renewal", "refund"
+
+  // Payment method
+  paymentMethod String? // "qris", "bank_transfer", "credit_card", "gopay", "shopeepay"
+  paymentChannel String? // Specific channel (e.g., "bca_va", "mandiri_va")
+
+  // Subscription linkage
+  subscriptionId String? @db.ObjectId // Link to subscription
+  planId         String? // "premium", "pro"
+
+  // Midtrans integration
+  midtransTransactionId String? // Midtrans transaction_id
+  midtransStatus        String? // Raw Midtrans status
+  fraudStatus           String? // "accept", "deny", "challenge"
+  settlementTime        DateTime? // When payment was settled
+
+  // Audit trail
+  metadata           Json? // Full Midtrans payload
+  ipAddress          String? // Request IP
+  userAgent          String? // Request user-agent
+  webhookReceivedAt  DateTime? // When webhook was received
+  webhookProcessedAt DateTime? // When webhook was processed
+  errorMessage       String? // Error details for failed transactions
+
+  // Refund tracking
+  refundedAt     DateTime?
+  refundAmount   Float?
+  refundReason   String?
+  refundedBy     String? // Admin user ID who processed refund
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes for queries and reconciliation
+  // Note: idempotencyKey and orderId already have @unique, no need for @@index
+  @@index([userId]) // User's transaction history
+  @@index([status]) // Transactions by status
+  @@index([subscriptionId]) // Subscription payment history
+  @@index([createdAt]) // Time-series queries
+  @@index([userId, status]) // User's pending/successful payments
+  @@index([settlementTime]) // Revenue recognition
+  @@index([fraudStatus]) // Fraud monitoring
+  @@map("payment_transactions")
+}
+
+// Cancellation Feedback: Capture churn reasons and retention data (Sprint 7)
+model CancellationFeedback {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  plan      String // Plan at time of cancellation
+  
+  // Survey data
+  cancelledAt          DateTime @default(now())
+  reason               String // Primary cancellation reason
+  specificFeedback     String? // Additional details
+  wouldConsiderReturning Boolean @default(false)
+  satisfactionScore    Int? // 1-5 scale
+  
+  // Retention tracking
+  retentionOfferShown  Json? // Which retention offer was shown
+  retentionOfferAccepted Boolean @default(false)
+  finalAction          String // "cancelled", "retained", "paused"
+  
+  createdAt DateTime @default(now())
+  
+  @@index([userId])
+  @@index([cancelledAt])
+  @@index([reason])
+  @@index([finalAction])
+  @@map("cancellation_feedback")
+}
+
+// =============================================================================
+// API MONETIZATION (Sprint 6)
+// =============================================================================
+
+model ApiKey {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId // API key owner
+
+  // Key Management
+  keyHash   String  @unique // bcrypt hash of the full key (sk_live_xxx)
+  keyPrefix String // First 12 chars for display (sk_live_abcd)
+  name      String // User-provided name (e.g., "Production", "Mobile App")
+  
+  // Access Control
+  scopes   String[] // Permissions: ['read:stocks', 'read:ownership', 'write:watchlist']
+  isActive Boolean  @default(true) // Can be revoked without deletion
+  
+  // Rate Limiting
+  rateLimit Int @default(100) // Requests per hour (plan-based default)
+  
+  // Usage Tracking
+  lastUsedAt    DateTime? // Last API call timestamp
+  totalRequests Int       @default(0) // Lifetime request count
+  
+  // Metadata
+  environment String @default("production") // 'production' | 'development'
+  ipWhitelist String[] @default([]) // Optional IP restrictions
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes for lookups and filtering
+  @@index([userId]) // User's API keys list
+  @@index([isActive]) // Active keys filter
+  @@index([lastUsedAt]) // Find unused keys
+  @@map("api_keys")
+}
+
+model ApiUsageHourly {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Time dimension
+  hour DateTime // Rounded to hour start (e.g., 2026-03-31T01:00:00Z)
+
+  // Key dimensions
+  apiKeyId String @db.ObjectId // Which API key
+  userId   String @db.ObjectId // API key owner (denormalized for convenience)
+  endpoint String // Which endpoint (e.g., '/api/v1/stocks/search')
+  method   String // HTTP method (GET, POST, etc.)
+
+  // Metrics
+  requestCount    Int   @default(0) // Total requests
+  successCount    Int   @default(0) // 2xx responses
+  errorCount      Int   @default(0) // 4xx + 5xx responses
+  avgResponseTime Float @default(0) // Average response time in ms
+  
+  // Detailed error breakdown
+  error4xxCount Int @default(0) // Client errors
+  error5xxCount Int @default(0) // Server errors
+  
+  // Data transfer (optional, for future billing)
+  bytesTransferred Int @default(0) // Total response bytes
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes for analytics queries
+  @@unique([hour, apiKeyId, endpoint, method]) // Prevent duplicate aggregations
+  @@index([apiKeyId, hour]) // Key's usage over time
+  @@index([userId, hour]) // User's total usage over time
+  @@index([hour]) // System-wide usage by hour
+  @@index([endpoint]) // Popular endpoints
+  @@map("api_usage_hourly")
+}
