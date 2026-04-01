@@ -22,6 +22,13 @@ model User {
   name          String?
   image         String?
   plan          String    @default("free")
+  
+  // Subscription management (Sprint 7)
+  cancelledAt       DateTime?
+  discountPercent   Int? // Retention discount percentage
+  discountExpiresAt DateTime? // When discount expires
+  pausedUntil       DateTime? // Subscription pause end date
+  
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -615,6 +622,33 @@ model PaymentTransaction {
   @@index([settlementTime]) // Revenue recognition
   @@index([fraudStatus]) // Fraud monitoring
   @@map("payment_transactions")
+}
+
+// Cancellation Feedback: Capture churn reasons and retention data (Sprint 7)
+model CancellationFeedback {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  plan      String // Plan at time of cancellation
+  
+  // Survey data
+  cancelledAt          DateTime @default(now())
+  reason               String // Primary cancellation reason
+  specificFeedback     String? // Additional details
+  wouldConsiderReturning Boolean @default(false)
+  satisfactionScore    Int? // 1-5 scale
+  
+  // Retention tracking
+  retentionOfferShown  Json? // Which retention offer was shown
+  retentionOfferAccepted Boolean @default(false)
+  finalAction          String // "cancelled", "retained", "paused"
+  
+  createdAt DateTime @default(now())
+  
+  @@index([userId])
+  @@index([cancelledAt])
+  @@index([reason])
+  @@index([finalAction])
+  @@map("cancellation_feedback")
 }
 
 // =============================================================================
