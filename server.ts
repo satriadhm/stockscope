@@ -6,8 +6,10 @@ import axios from 'axios';
 import { PrismaClient } from '@prisma/client';
 import { sendSMSAlert, sendEmailAlert } from './src/lib/notifications';
 import express from 'express';
+import compression from 'compression';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import Stripe from 'stripe';
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -16,6 +18,50 @@ const prisma = new PrismaClient();
 
 app.prepare().then(() => {
   const expressApp = express();
+
+  // Phase 2: Gzip compression for all API responses
+  expressApp.use(compression());
+
+  // Phase 3: Stripe Webhook Flow (Must bypass JSON body-parser)
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock_key_for_dev', {
+    apiVersion: '2022-11-15' as any,
+  });
+
+  expressApp.post(
+    '/api/webhook/stripe',
+    express.raw({ type: 'application/json' }),
+    async (req: express.Request, res: express.Response) => {
+      const sig = req.headers['stripe-signature'];
+      let event;
+      try {
+        event = stripe.webhooks.constructEvent(
+          req.body,
+          sig as string,
+          process.env.STRIPE_WEBHOOK_SECRET || 'whsec_mock_key_for_dev'
+        );
+      } catch (err: any) {
+        console.error(`Webhook signature verification failed:`, err.message);
+        res.status(400).send(`Webhook Error: ${err.message}`);
+        return;
+      }
+
+      if (event.type === 'checkout.session.completed') {
+        const session: any = event.data.object;
+        if (session.client_reference_id) {
+          try {
+            await prisma.user.update({
+              where: { id: session.client_reference_id },
+              data: { isPremium: true },
+            });
+            console.log(`Successfully upgraded user ${session.client_reference_id} to Premium`);
+          } catch (dbErr) {
+            console.error('Database update failed:', dbErr);
+          }
+        }
+      }
+      res.json({ received: true });
+    }
+  );
 
   // Swagger Setup (Phase 2)
   const swaggerOptions = {
