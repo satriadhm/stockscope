@@ -1,3 +1,45 @@
+/**
+ * @swagger
+ * /alerts:
+ *   post:
+ *     summary: Create a new price alert
+ *     description: Creates a price alert for a specified stock ticker based on target price conditions.
+ *     tags:
+ *       - Alert
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - ticker
+ *               - condition
+ *               - targetPrice
+ *             properties:
+ *               ticker:
+ *                 type: string
+ *               condition:
+ *                 type: string
+ *                 enum: [above, below]
+ *               targetPrice:
+ *                 type: number
+ *               notifyEmail:
+ *                 type: boolean
+ *               notifySms:
+ *                 type: boolean
+ *     responses:
+ *       201:
+ *         description: Alert successfully created
+ *       400:
+ *         description: Missing required fields
+ *       401:
+ *         description: Unauthorized
+ *       429:
+ *         description: Rate limit exceeded
+ *       500:
+ *         description: Internal server error
+ */
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth';

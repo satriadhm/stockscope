@@ -1,26 +1,24 @@
-# Sprint 4 Technical Implementation Summary
+# Sprint 5: Documentation, Testing & Scalability Summary
 
-## Core Technical Objectives Accomplished
-1. **TA-Lib Node Bridge Implementation** (`services/analysis.ts`):
-   - Created calculation structures for RSI and MACD arrays.
-   - Dealt gracefully with platform issues typically encountered parsing TA-lib on native windows instances by adding seamless try/catch javascript mock fallbacks.
-   - Designed array shape mappers to deal seamlessly with the Chart.js native object.
+## 1. Documentation (Swagger API)
+- Deployed Swagger configuration via `swagger-jsdoc` and `swagger-ui-express` through a refactored `server.ts` Express container.
+- Added JSDoc YAML inline annotations for endpoints:
+  - `GET /api/screener` (Filter properties, logic docs)
+  - `POST /api/alerts` (Alert creation schema)
+  - `GET / POST / DELETE /api/ai-scores` (Indicator and snapshot logic)
+  - `GET /api/auth/*` (NextAuth session checking)
+- Available at `http://localhost:3000/api-docs`
 
-2. **Fundamental Ratios Logic** (`services/analysis.ts`):
-   - Created `calculateFundamentals` to abstract P/E.
-   - Approximated `EV/EBITDA` to integrate premium restrictions and satisfy basic ratio requirement logic.
+## 2. Scalability & Performance Tuning
+- **Redis Middleware**: Introduced a caching wrapper `lib/redis-cache.ts` that captures Next.js API Routes and serves in-memory.
+- **Screener Caching**: Connected `/api/screener/route.ts` to Redis with a dynamic URL-based cache key and a 60-second TTL.
+- **Prisma Schema Indexing**:
+  - Implemented `@@index([sector, boardType])` for `CompanyMaster`.
+  - Implemented `@@index([isActive, targetPrice, ticker])` for `PriceAlert`.
+  - Implemented `@@index([ticker, date, holderType])` for `OwnershipSnapshot`.
 
-3. **Restful Indicator Endpoints** (`api/indicators/[symbol]`):
-   - Connected `Next-Auth` to filter metric responses dynamically (such as `EV/EBITDA` hiding behind `isPremium`).
-   - Prepared structured labels and datasets optimized for immediate `react-chartjs-2` processing.
+## 3. Automation Testing
+- **E2E Testing (Cypress v10)**: Created `cypress/e2e/core-journey.cy.js` validating the critical path from Mock Login -> Mock Filter Stocks -> Mock Set Alert. Network intercepts ensure test suite speed and reliability without touching real production DBs.
+- **Unit Testing (Jest v27)**: Wrote `tests/enrichmentService.test.ts` capturing exactly how the TA-Lib equivalents and fundamental parsers attach AI Tier scores to the raw market JSON arrays. Evaluated edge case generation when a stock does not have mapped market data.
 
-4. **React Chart.js Native Render Flow** (`components/analytics/StockChartOverlay.tsx`):
-   - Visualized multi-axis plots merging overlapping Price, RSI, and Histograms successfully mapping colors, scaling, and missing `null` padding gracefully.
-
-5. **Serverless Backtesting State Machine** (`api/backtest` & `components/analytics/BacktesterUI.tsx`):
-   - Connected `ioredis` to limit 5/month free queries mapping strictly to the user id and YYYY-MM expiry patterns safely.
-   - Built an interactive simulation loop operating on server memory returning ROI/P&L records to `react-hook-form` UI components successfully ensuring no business logic is leaked to the client window.
-
-## Remaining Warnings & Checks
-- Next time deploying, make sure to bundle native python/make compiler chains to securely map actual native `talib` bindings on Linux deployment hardware.
-- Monitor Redis memory logic since we expire limit counters at ~31 day bounds.
+All tasks listed in the Phase instructions have been successfully implemented!

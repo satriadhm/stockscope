@@ -5,6 +5,9 @@ import { Server as SocketIOServer } from 'socket.io';
 import axios from 'axios';
 import { PrismaClient } from '@prisma/client';
 import { sendSMSAlert, sendEmailAlert } from './src/lib/notifications';
+import express from 'express';
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -12,16 +15,31 @@ const handle = app.getRequestHandler();
 const prisma = new PrismaClient();
 
 app.prepare().then(() => {
-  const server = createServer((req, res) => {
+  const expressApp = express();
+
+  // Swagger Setup (Phase 2)
+  const swaggerOptions = {
+    definition: {
+      openapi: '3.0.0',
+      info: { title: 'Stockscope API', version: '1.0.0', description: 'API Documentation for Stockscope' },
+      servers: [{ url: '/api', description: 'Next.js App Router API endpoints' }],
+    },
+    apis: ['./app/api/**/*.ts', './server.ts'],
+  };
+  const swaggerSpec = swaggerJsdoc(swaggerOptions);
+  expressApp.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+  expressApp.all('*', (req: express.Request, res: express.Response) => {
     try {
       const parsedUrl = parse(req.url!, true);
       handle(req, res, parsedUrl);
     } catch (err) {
       console.error('Error occurred handling', req.url, err);
-      res.statusCode = 500;
-      res.end('internal server error');
+      res.status(500).send('internal server error');
     }
   });
+
+  const server = createServer(expressApp);
 
   const io = new SocketIOServer(server, { 
     path: '/socket.io', 
