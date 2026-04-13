@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, X, Plus } from 'lucide-react';
+import { GripVertical, X, Plus, AlertCircle } from 'lucide-react';
 
 interface WatchlistItem {
   id: string;
@@ -27,9 +27,12 @@ interface WatchlistDetailProps {
 interface SortableItemProps {
   item: WatchlistItem;
   onRemove: (ticker: string) => void;
+  pendingRemove: string | null;
+  onConfirmRemove: (ticker: string) => void;
+  onCancelRemove: () => void;
 }
 
-function SortableItem({ item, onRemove }: SortableItemProps) {
+function SortableItem({ item, onRemove, pendingRemove, onConfirmRemove, onCancelRemove }: SortableItemProps) {
   const {
     attributes,
     listeners,
@@ -44,6 +47,8 @@ function SortableItem({ item, onRemove }: SortableItemProps) {
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
+
+  const isConfirming = pendingRemove === item.ticker;
 
   return (
     <div
@@ -75,14 +80,32 @@ function SortableItem({ item, onRemove }: SortableItemProps) {
         )}
       </div>
 
-      {/* Remove Button */}
-      <button
-        onClick={() => onRemove(item.ticker)}
-        className="p-1 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
-        title="Remove from watchlist"
-      >
-        <X className="w-4 h-4" />
-      </button>
+      {/* Remove / Confirm Remove */}
+      {isConfirming ? (
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-xs text-gray-500 dark:text-gray-400">Remove?</span>
+          <button
+            onClick={() => onConfirmRemove(item.ticker)}
+            className="px-2 py-0.5 text-xs bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
+          >
+            Yes
+          </button>
+          <button
+            onClick={onCancelRemove}
+            className="px-2 py-0.5 text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded transition-colors"
+          >
+            No
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={() => onRemove(item.ticker)}
+          className="p-1 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+          title="Remove from watchlist"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      )}
     </div>
   );
 }
@@ -91,7 +114,9 @@ export function WatchlistDetail({ watchlistId, onAddStock }: WatchlistDetailProp
   const [items, setItems] = useState<WatchlistItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [inlineError, setInlineError] = useState<string | null>(null);
   const [watchlistName, setWatchlistName] = useState('');
+  const [pendingRemove, setPendingRemove] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -147,16 +172,19 @@ export function WatchlistDetail({ watchlistId, onAddStock }: WatchlistDetailProp
 
       if (!res.ok) throw new Error('Failed to update order');
     } catch (err) {
-      console.error('Reorder failed:', err);
       // Revert on error
       setItems(items);
-      alert('Failed to save new order');
+      setInlineError('Failed to save new order. Please try again.');
     }
   };
 
-  const handleRemove = async (ticker: string) => {
-    if (!confirm(`Remove ${ticker} from watchlist?`)) return;
+  const handleRemove = (ticker: string) => {
+    setPendingRemove(ticker);
+    setInlineError(null);
+  };
 
+  const handleConfirmRemove = async (ticker: string) => {
+    setPendingRemove(null);
     try {
       const res = await fetch(
         `/api/watchlists/${watchlistId}/items?ticker=${ticker}`,
@@ -166,7 +194,7 @@ export function WatchlistDetail({ watchlistId, onAddStock }: WatchlistDetailProp
       if (!res.ok) throw new Error('Failed to remove stock');
       setItems((prev) => prev.filter((item) => item.ticker !== ticker));
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Remove failed');
+      setInlineError(err instanceof Error ? err.message : 'Remove failed');
     }
   };
 
@@ -222,6 +250,17 @@ export function WatchlistDetail({ watchlistId, onAddStock }: WatchlistDetailProp
         </p>
       </div>
 
+      {/* Inline error banner */}
+      {inlineError && (
+        <div className="mx-6 mt-4 flex items-center gap-2 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span className="flex-1">{inlineError}</span>
+          <button onClick={() => setInlineError(null)} className="text-red-500 hover:text-red-700">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Stock List */}
       <div className="flex-1 overflow-y-auto p-6">
         {items.length === 0 ? (
@@ -251,6 +290,9 @@ export function WatchlistDetail({ watchlistId, onAddStock }: WatchlistDetailProp
                     key={item.id}
                     item={item}
                     onRemove={handleRemove}
+                    pendingRemove={pendingRemove}
+                    onConfirmRemove={handleConfirmRemove}
+                    onCancelRemove={() => setPendingRemove(null)}
                   />
                 ))}
               </div>

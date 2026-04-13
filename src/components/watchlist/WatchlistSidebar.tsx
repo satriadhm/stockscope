@@ -7,7 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { Plus, List, Trash2 } from 'lucide-react';
+import { Plus, List, Trash2, AlertCircle, X } from 'lucide-react';
 
 interface Watchlist {
   id: string;
@@ -36,6 +36,8 @@ export function WatchlistSidebar({
   const [watchlists, setWatchlists] = useState<Watchlist[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [inlineError, setInlineError] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (session?.user) {
@@ -59,8 +61,12 @@ export function WatchlistSidebar({
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm('Delete this watchlist? This cannot be undone.')) return;
+    setPendingDelete(id);
+    setInlineError(null);
+  };
 
+  const handleConfirmDelete = async (id: string) => {
+    setPendingDelete(null);
     try {
       const res = await fetch(`/api/watchlists/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete');
@@ -69,7 +75,7 @@ export function WatchlistSidebar({
         onSelectWatchlist(watchlists[0]?.id || '');
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Delete failed');
+      setInlineError(err instanceof Error ? err.message : 'Delete failed');
     }
   };
 
@@ -128,6 +134,17 @@ export function WatchlistSidebar({
         </button>
       </div>
 
+      {/* Inline error */}
+      {inlineError && (
+        <div className="mx-4 mt-3 flex items-center gap-2 px-3 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-xs">
+          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+          <span className="flex-1">{inlineError}</span>
+          <button onClick={() => setInlineError(null)}>
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* Watchlist Cards */}
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {watchlists.length === 0 ? (
@@ -180,13 +197,35 @@ export function WatchlistSidebar({
                     )}
                   </div>
                 </div>
-                <button
-                  onClick={(e) => handleDelete(watchlist.id, e)}
-                  className="p-1 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
-                  title="Delete watchlist"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+
+                {/* Delete / Confirm delete */}
+                {pendingDelete === watchlist.id ? (
+                  <div className="flex flex-col items-end gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Delete?</span>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => handleConfirmDelete(watchlist.id)}
+                        className="px-2 py-0.5 text-xs bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
+                      >
+                        Yes
+                      </button>
+                      <button
+                        onClick={() => setPendingDelete(null)}
+                        className="px-2 py-0.5 text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded transition-colors"
+                      >
+                        No
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={(e) => handleDelete(watchlist.id, e)}
+                    className="p-1 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+                    title="Delete watchlist"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             </div>
           ))
