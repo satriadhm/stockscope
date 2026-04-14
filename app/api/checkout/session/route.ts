@@ -1,34 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-if (process.env.NODE_ENV === "production" && !process.env.STRIPE_SECRET_KEY) {
-  throw new Error("STRIPE_SECRET_KEY must be set in production");
-}
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_mock_key_for_dev", {
-  apiVersion: "2022-08-01",
-});
-
-// Server-side allowlist: maps tier+cycle to a real Stripe price ID.
-// Set the corresponding env vars to your Stripe dashboard price IDs.
-const PRICE_ID_MAP: Record<string, string | undefined> = {
-  premium_monthly: process.env.STRIPE_PRICE_PREMIUM_MONTHLY,
-  premium_annual:  process.env.STRIPE_PRICE_PREMIUM_ANNUAL,
-  pro_monthly:     process.env.STRIPE_PRICE_PRO_MONTHLY,
-  pro_annual:      process.env.STRIPE_PRICE_PRO_ANNUAL,
-};
-
-// In production, validate that all required price IDs are configured
-if (process.env.NODE_ENV === "production") {
-  const missingPriceIds = Object.entries(PRICE_ID_MAP)
-    .filter(([, v]) => !v)
-    .map(([k]) => k);
-  if (missingPriceIds.length > 0) {
-    throw new Error(`Missing required Stripe price ID env vars for: ${missingPriceIds.join(', ')}`);
-  }
-}
-
 export async function POST(req: NextRequest) {
+  // Validate env vars and initialize Stripe at runtime, not at build time
+  if (!process.env.STRIPE_SECRET_KEY) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("STRIPE_SECRET_KEY must be set in production");
+    }
+  }
+
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_mock_key_for_dev", {
+    apiVersion: "2022-08-01",
+  });
+
+  // Server-side allowlist: maps tier+cycle to a real Stripe price ID.
+  // Set the corresponding env vars to your Stripe dashboard price IDs.
+  const PRICE_ID_MAP: Record<string, string | undefined> = {
+    premium_monthly: process.env.STRIPE_PRICE_PREMIUM_MONTHLY,
+    premium_annual:  process.env.STRIPE_PRICE_PREMIUM_ANNUAL,
+    pro_monthly:     process.env.STRIPE_PRICE_PRO_MONTHLY,
+    pro_annual:      process.env.STRIPE_PRICE_PRO_ANNUAL,
+  };
+
+  // In production, validate that all required price IDs are configured
+  if (process.env.NODE_ENV === "production") {
+    const missingPriceIds = Object.entries(PRICE_ID_MAP)
+      .filter(([, v]) => !v)
+      .map(([k]) => k);
+    if (missingPriceIds.length > 0) {
+      return NextResponse.json(
+        { error: `Missing required Stripe price ID env vars for: ${missingPriceIds.join(", ")}` },
+        { status: 500 }
+      );
+    }
+  }
+
   try {
     const body = await req.json();
     const { userId, tierId, billingCycle } = body;

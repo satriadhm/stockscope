@@ -54,6 +54,13 @@
 - No changes needed for `talib` (already fixed in Phase 6 via `serverExternalPackages`).
 - Created `CHARTJS_TS_AUDIT.md` documenting the version API change, both resolution paths, and the chosen strategy.
 
+## Phase 14: Stripe Build-Time Environment Variable Error Fix
+- Audited `app/api/checkout/session/route.ts`: three top-level blocks (env check throw, `new Stripe(...)` init, price-ID validation throw) were executing at module-load time during Next.js's "Collecting page data" build phase, crashing with `Error: STRIPE_SECRET_KEY must be set in production`.
+- Path A applied: moved all three blocks inside the `POST` handler so they only execute at request runtime. The price-ID validation `throw` was converted to a proper `NextResponse.json` 500 response.
+- `tsc --noEmit` produces no errors for the route file after the change.
+- `talib` warning already handled via `serverExternalPackages` in `next.config.ts` — no change required.
+- Created `STRIPE_ENV_BUILD_AUDIT.md` documenting the cause and chosen fix.
+
 ## Phase 13: EnrichedStock TypeScript Property Mismatch Fix (missing hhi, floatPercentage, c1, c3)
 - Audited `src/components/features/screener/ScreenerWorkspace.tsx` line 150: `.map()` transform was projecting 14 fields but omitting four required properties (`hhi`, `floatPercentage`, `c1`, `c3`) inherited from the base `Stock` interface, causing `TS2739`.
 - Path A chosen: added the four missing fields with `?? 0` fallbacks to the map expression. Fields are expected from the screener API (same MongoDB documents), and the fallback guards against partial responses.
