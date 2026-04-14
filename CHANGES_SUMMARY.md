@@ -18,3 +18,9 @@
 
 ## Phase 4: A/B Testing
 - Rewired `useCTAExperiment` to directly initialize and activate variations securely using an explicit reference to the `@optimizely/optimizely-sdk` framework for UI AB toggles based on IDs.
+
+## Phase 5: Vercel ERESOLVE Fix (React 19 Peer Dependency)
+- Audited all direct and transitive dependencies incompatible with `react@19.2.3` (`react-slider`, `swagger-ui-react`, `react-copy-to-clipboard`, `react-debounce-input`, `react-inspector`).
+- Chose **Path A** (legacy peer deps) to keep React 19 and unblock Vercel CI/CD.
+- Created `.npmrc` at the project root with `legacy-peer-deps=true` so npm skips strict peer-dependency enforcement during `npm install`.
+- Created `DEPENDENCY_AUDIT.md` documenting conflicting packages, both resolution paths, and future technical debt items.
