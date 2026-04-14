@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/pricing?canceled=true`,
     });
 
-    return NextResponse.json({ sessionId: session.id });
+    return NextResponse.json({ sessionId: session.id, url: session.url });
   } catch (error: any) {
     console.error("Stripe Checkout Session Error:", error.message);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

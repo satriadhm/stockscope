@@ -37,3 +37,11 @@
 - Added `import type { Stock } from "@/types"` to the route file.
 - No changes needed for `talib` (already fixed in Phase 6 via `serverExternalPackages`).
 - Created `MONGODB_TS_AUDIT.md` documenting the type mismatch, both resolution paths, and future schema-sync recommendations.
+
+## Phase 8: Stripe Frontend SDK TypeScript Fix (redirectToCheckout removed in v2+)
+- Audited `app/pricing/PricingClient.tsx`: imports were already correct (`loadStripe` from `@stripe/stripe-js`). The error `Property 'redirectToCheckout' does not exist on type 'Stripe'` is caused by `@stripe/stripe-js@9.1.0` having removed `redirectToCheckout` entirely in v2+.
+- Chose **Path B** (URL redirect pattern): instead of downgrading the SDK, migrated to the modern Stripe Checkout redirect flow.
+- Fixed `app/api/checkout/session/route.ts`: added `url: session.url` to the JSON response alongside the existing `sessionId`.
+- Fixed `app/pricing/PricingClient.tsx`: removed `loadStripe`/`stripePromise` and the deprecated `stripe.redirectToCheckout()` call; replaced with `window.location.href = data.url` — the correct modern pattern for Stripe-hosted Checkout Sessions.
+- No changes needed for `talib` (already fixed in Phase 6 via `serverExternalPackages`).
+- Created `STRIPE_FRONTEND_TS_AUDIT.md` documenting the version history, why Path A (import fix) does not apply, and the chosen Path B strategy.
