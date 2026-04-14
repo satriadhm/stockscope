@@ -38,7 +38,13 @@
 - No changes needed for `talib` (already fixed in Phase 6 via `serverExternalPackages`).
 - Created `MONGODB_TS_AUDIT.md` documenting the type mismatch, both resolution paths, and future schema-sync recommendations.
 
-## Phase 8: Stripe Frontend SDK TypeScript Fix (redirectToCheckout removed in v2+)
+## Phase 9: Chart.js TypeScript Options Fix (stacked at root level)
+- Audited `src/components/analytics/StockChartOverlay.tsx`: the `options` object passed to `<Chart>` contained `stacked: false` at the root level.
+- In Chart.js v3+, `stacked` is a per-axis scale property, not a root `ChartOptions` field. TypeScript correctly rejects it with `Object literal may only specify known properties, and 'stacked' does not exist in type...`.
+- Chose **Path B** (remove the line): all chart series already use separate y-axes (`y`, `y1`, `y2`), so stacking is inherently off and the explicit declaration is redundant.
+- Removed `stacked: false` from the root of the `options` object in `StockChartOverlay.tsx`.
+- No changes needed for `talib` (already fixed in Phase 6 via `serverExternalPackages`).
+- Created `CHARTJS_TS_AUDIT.md` documenting the version API change, both resolution paths, and the chosen strategy.
 - Audited `app/pricing/PricingClient.tsx`: imports were already correct (`loadStripe` from `@stripe/stripe-js`). The error `Property 'redirectToCheckout' does not exist on type 'Stripe'` is caused by `@stripe/stripe-js@9.1.0` having removed `redirectToCheckout` entirely in v2+.
 - Chose **Path B** (URL redirect pattern): instead of downgrading the SDK, migrated to the modern Stripe Checkout redirect flow.
 - Fixed `app/api/checkout/session/route.ts`: added `url: session.url` to the JSON response alongside the existing `sessionId`.
