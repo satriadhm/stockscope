@@ -30,3 +30,10 @@
 - Fixed `app/api/checkout/session/route.ts`: changed hardcoded `apiVersion` from `"2022-11-15"` to `"2022-08-01"` to match installed types and resolve the TypeScript compilation error on Vercel.
 - Fixed `next.config.ts`: added `serverExternalPackages: ["talib"]` so webpack/Turbopack skips bundling the native `talib` binary, eliminating the `Module not found: Can't resolve 'talib'` build warning (runtime JS fallback in `src/services/analysis.ts` is preserved).
 - Created `STRIPE_TS_AUDIT.md` documenting the version mismatch, resolution paths, and future upgrade path to `stripe@22.x`.
+
+## Phase 7: MongoDB TypeScript Interface Fix (WithId<Document>[] → Stock[])
+- Audited `app/api/export/csv/route.ts`: untyped `database.collection("stocks")` caused `.toArray()` to infer `WithId<Document>[]`, which is not assignable to the `Stock[]` expected by `enrichStocks()`.
+- Chose **Path A**: added `<Stock>` generic to the collection call (`database.collection<Stock>("stocks")`), making `.toArray()` return `WithId<Stock>[]` — structurally assignable to `Stock[]` because `Stock._id` is already typed as `string | undefined`.
+- Added `import type { Stock } from "@/types"` to the route file.
+- No changes needed for `talib` (already fixed in Phase 6 via `serverExternalPackages`).
+- Created `MONGODB_TS_AUDIT.md` documenting the type mismatch, both resolution paths, and future schema-sync recommendations.
