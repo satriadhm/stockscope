@@ -54,6 +54,13 @@
 - No changes needed for `talib` (already fixed in Phase 6 via `serverExternalPackages`).
 - Created `CHARTJS_TS_AUDIT.md` documenting the version API change, both resolution paths, and the chosen strategy.
 
+## Phase 12: react-modal TypeScript Declaration Fix (missing @types package)
+- Audited `src/components/features/screener/ScreenerWorkspace.tsx`: imports `ReactModal` from `react-modal` v3, which ships no bundled TypeScript declarations. With `strict: true` in `tsconfig.json`, this caused `TS7016: Could not find a declaration file for module 'react-modal'` on Vercel.
+- Confirmed `@types/react-modal@3.16.3` exists on DefinitelyTyped with no known CVEs; installed via `npm i --save-dev @types/react-modal`.
+- After installation, `npx tsc --noEmit` no longer reports `TS7016` for `ScreenerWorkspace.tsx`.
+- `talib` warning is already handled via `serverExternalPackages` in `next.config.ts` from a prior session — no change required.
+- Created `REACT_MODAL_TS_AUDIT.md` documenting the missing declarations and chosen fix path.
+
 ## Phase 11: react-table TypeScript Declaration Fix (missing @types package + module augmentation)
 - **Phase 11a** — Audited `src/components/features/screener/ScreenerTable.tsx`: imports `useTable`, `useSortBy`, `usePagination`, and `Column` from `react-table` v7, which ships no bundled TypeScript declarations. With `strict: true` in `tsconfig.json`, this caused `Could not find a declaration file for module 'react-table'` on Vercel.
 - Confirmed `@types/react-table@7.7.20` exists on DefinitelyTyped with no known CVEs; installed via `npm i --save-dev @types/react-table`.
