@@ -54,4 +54,11 @@
 - No changes needed for `talib` (already fixed in Phase 6 via `serverExternalPackages`).
 - Created `CHARTJS_TS_AUDIT.md` documenting the version API change, both resolution paths, and the chosen strategy.
 
+## Phase 11: react-table TypeScript Declaration Fix (missing @types package)
+- Audited `src/components/features/screener/ScreenerTable.tsx`: imports `useTable`, `useSortBy`, `usePagination`, and `Column` from `react-table` v7, which ships no bundled TypeScript declarations. With `strict: true` in `tsconfig.json`, this causes `Could not find a declaration file for module 'react-table'` and a Vercel build failure.
+- Confirmed `@types/react-table@7.7.20` exists on DefinitelyTyped with no known CVEs and targets react-table v7.
+- Chose **Path A** (install official types): added `"@types/react-table": "^7.7.20"` to `devDependencies` in `package.json`. The community types provide full plugin-chain declarations including `UseTableInstanceProps`, `UseSortByColumnProps`, `UsePaginationInstanceProps`, and the generic `Column<D>` type used in the component.
+- No changes needed for `talib` (already fixed in Phase 6 via `serverExternalPackages`).
+- Created `REACT_TABLE_TS_AUDIT.md` documenting the missing declarations, both resolution paths, and the chosen strategy.
+
 ## Phase 10: react-slider TypeScript Declaration Fix (missing @types package)
