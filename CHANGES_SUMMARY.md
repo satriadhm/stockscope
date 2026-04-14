@@ -38,12 +38,13 @@
 - No changes needed for `talib` (already fixed in Phase 6 via `serverExternalPackages`).
 - Created `MONGODB_TS_AUDIT.md` documenting the type mismatch, both resolution paths, and future schema-sync recommendations.
 
-## Phase 10: react-slider TypeScript Declaration Fix (missing @types package)
-- Audited `src/components/features/screener/FilterSidebar.tsx`: imports `ReactSlider` from `react-slider`, which ships no bundled TypeScript declarations. With `strict: true` in `tsconfig.json`, this causes `Could not find a declaration file for module 'react-slider'` and a Vercel build failure.
-- Confirmed `@types/react-slider@1.3.6` exists on DefinitelyTyped with no known CVEs.
-- Chose **Path A** (install official types): added `"@types/react-slider": "^1.3.6"` to `devDependencies` in `package.json`. All props used in `FilterSidebar.tsx` (`min`, `max`, `step`, `value`, `onChange`, `pearling`, `minDistance`, `className`, `thumbClassName`, `trackClassName`) are covered by the community type definitions.
+## Phase 8: Stripe Frontend SDK TypeScript Fix (redirectToCheckout removed in v2+)
+- Audited `app/pricing/PricingClient.tsx`: imports were already correct (`loadStripe` from `@stripe/stripe-js`). The error `Property 'redirectToCheckout' does not exist on type 'Stripe'` is caused by `@stripe/stripe-js@9.1.0` having removed `redirectToCheckout` entirely in v2+.
+- Chose **Path B** (URL redirect pattern): instead of downgrading the SDK, migrated to the modern Stripe Checkout redirect flow.
+- Fixed `app/api/checkout/session/route.ts`: added `url: session.url` to the JSON response alongside the existing `sessionId`.
+- Fixed `app/pricing/PricingClient.tsx`: removed `loadStripe`/`stripePromise` and the deprecated `stripe.redirectToCheckout()` call; replaced with `window.location.href = data.url` — the correct modern pattern for Stripe-hosted Checkout Sessions.
 - No changes needed for `talib` (already fixed in Phase 6 via `serverExternalPackages`).
-- Created `REACT_SLIDER_TS_AUDIT.md` documenting the missing declarations, both resolution paths, and the chosen strategy.
+- Created `STRIPE_FRONTEND_TS_AUDIT.md` documenting the version history, why Path A (import fix) does not apply, and the chosen Path B strategy.
 
 ## Phase 9: Chart.js TypeScript Options Fix (stacked at root level)
 - Audited `src/components/analytics/StockChartOverlay.tsx`: the `options` object passed to `<Chart>` contained `stacked: false` at the root level.
@@ -52,9 +53,5 @@
 - Removed `stacked: false` from the root of the `options` object in `StockChartOverlay.tsx`.
 - No changes needed for `talib` (already fixed in Phase 6 via `serverExternalPackages`).
 - Created `CHARTJS_TS_AUDIT.md` documenting the version API change, both resolution paths, and the chosen strategy.
-- Audited `app/pricing/PricingClient.tsx`: imports were already correct (`loadStripe` from `@stripe/stripe-js`). The error `Property 'redirectToCheckout' does not exist on type 'Stripe'` is caused by `@stripe/stripe-js@9.1.0` having removed `redirectToCheckout` entirely in v2+.
-- Chose **Path B** (URL redirect pattern): instead of downgrading the SDK, migrated to the modern Stripe Checkout redirect flow.
-- Fixed `app/api/checkout/session/route.ts`: added `url: session.url` to the JSON response alongside the existing `sessionId`.
-- Fixed `app/pricing/PricingClient.tsx`: removed `loadStripe`/`stripePromise` and the deprecated `stripe.redirectToCheckout()` call; replaced with `window.location.href = data.url` — the correct modern pattern for Stripe-hosted Checkout Sessions.
-- No changes needed for `talib` (already fixed in Phase 6 via `serverExternalPackages`).
-- Created `STRIPE_FRONTEND_TS_AUDIT.md` documenting the version history, why Path A (import fix) does not apply, and the chosen Path B strategy.
+
+## Phase 10: react-slider TypeScript Declaration Fix (missing @types package)
