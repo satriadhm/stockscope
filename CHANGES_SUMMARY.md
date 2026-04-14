@@ -54,11 +54,13 @@
 - No changes needed for `talib` (already fixed in Phase 6 via `serverExternalPackages`).
 - Created `CHARTJS_TS_AUDIT.md` documenting the version API change, both resolution paths, and the chosen strategy.
 
-## Phase 11: react-table TypeScript Declaration Fix (missing @types package)
-- Audited `src/components/features/screener/ScreenerTable.tsx`: imports `useTable`, `useSortBy`, `usePagination`, and `Column` from `react-table` v7, which ships no bundled TypeScript declarations. With `strict: true` in `tsconfig.json`, this causes `Could not find a declaration file for module 'react-table'` and a Vercel build failure.
-- Confirmed `@types/react-table@7.7.20` exists on DefinitelyTyped with no known CVEs and targets react-table v7.
-- Chose **Path A** (install official types): added `"@types/react-table": "^7.7.20"` to `devDependencies` in `package.json`. The community types provide full plugin-chain declarations including `UseTableInstanceProps`, `UseSortByColumnProps`, `UsePaginationInstanceProps`, and the generic `Column<D>` type used in the component.
-- No changes needed for `talib` (already fixed in Phase 6 via `serverExternalPackages`).
-- Created `REACT_TABLE_TS_AUDIT.md` documenting the missing declarations, both resolution paths, and the chosen strategy.
+## Phase 11: react-table TypeScript Declaration Fix (missing @types package + module augmentation)
+- **Phase 11a** — Audited `src/components/features/screener/ScreenerTable.tsx`: imports `useTable`, `useSortBy`, `usePagination`, and `Column` from `react-table` v7, which ships no bundled TypeScript declarations. With `strict: true` in `tsconfig.json`, this caused `Could not find a declaration file for module 'react-table'` on Vercel.
+- Confirmed `@types/react-table@7.7.20` exists on DefinitelyTyped with no known CVEs; installed via `npm i --save-dev @types/react-table`.
+- **Phase 11b** — After installing `@types/react-table`, `npx tsc --noEmit` revealed deeper plugin-type errors: react-table v7 requires **module augmentation** to merge plugin interfaces into the core types. Without it, `page`, `sortBy`, `isSorted`, `getSortByToggleProps`, `isSortedDesc`, `pageSize`, etc. are all unknown properties.
+- Created `src/types/react-table-plugins.d.ts` with module augmentation that merges `UseSortByOptions`, `UseSortByState`, `UseSortByColumnProps`, `UseSortByInstanceProps`, `UsePaginationOptions`, `UsePaginationState`, and `UsePaginationInstanceProps` into the corresponding `TableOptions`, `TableState`, `ColumnInstance`, and `TableInstance` interfaces. This is the officially recommended pattern from DefinitelyTyped.
+- Fixed two implicit `any` errors in Cell renderers for function-accessor columns (composite score `number | undefined`, aiTier label `string | undefined`) by adding explicit inline type annotations.
+- All 13 `ScreenerTable.tsx` TypeScript errors are now resolved. No changes needed for `talib` (already fixed in Phase 6 via `serverExternalPackages`).
+- Created `REACT_TABLE_TS_AUDIT.md` documenting the missing declarations, module augmentation pattern, and chosen strategy.
 
 ## Phase 10: react-slider TypeScript Declaration Fix (missing @types package)
