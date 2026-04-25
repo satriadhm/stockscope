@@ -151,6 +151,7 @@ function buildPeDistribution(data: Row[]) {
 
   for (const row of data) {
     const pe = row.pe;
+    if (pe == null || !isFinite(pe)) continue;
     if (pe >= 100) {
       counts[PE_BUCKETS.length - 1]++;
       continue;
