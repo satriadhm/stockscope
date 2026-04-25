@@ -165,6 +165,7 @@ export function VirtualizedTable<T>({
           >
             {virtualizer.getVirtualItems().map((vRow) => {
               const row = rows[vRow.index];
+              if (!row) return null;
               return (
                 <tr
                   key={row.id}

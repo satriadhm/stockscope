@@ -165,10 +165,11 @@ function buildPeDistribution(data: Row[]) {
   }
 
   const buckets = PE_BUCKETS.slice(0, -1).map((lower, i) => ({
+    // Indices i and i+1 are guaranteed in-bounds by slice(0,-1)
     range: `${lower}–${PE_BUCKETS[i + 1]}`,
-    count: counts[i]!,
+    count: counts[i] ?? 0,
   }));
-  buckets.push({ range: ">100", count: counts[PE_BUCKETS.length - 1]! });
+  buckets.push({ range: ">100", count: counts[PE_BUCKETS.length - 1] ?? 0 });
   return buckets;
 }
 
@@ -199,7 +200,7 @@ export function ScreenerWorkspace() {
   const tableData = (result?.data ?? []) as Row[];
 
   const peChartData = buildPeDistribution(
-    tableData.filter((d) => d.pe > 0),
+    tableData.filter((d) => d.pe != null && isFinite(d.pe) && d.pe > 0),
   ) as Record<string, unknown>[];
 
   const scatterData = tableData
