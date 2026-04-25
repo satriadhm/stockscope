@@ -75,7 +75,7 @@ export function VirtualizedTable<T>({
       const next =
         typeof updater === "function" ? updater(internalSorting) : updater;
       setInternalSorting(next);
-      if (onSortChange && next.length > 0) {
+      if (onSortChange && next.length > 0 && next[0]) {
         onSortChange(next[0].id, next[0].desc ? "desc" : "asc");
       }
     },

@@ -203,7 +203,13 @@ export function ScreenerWorkspace() {
   ) as Record<string, unknown>[];
 
   const scatterData = tableData
-    .filter((d) => d.roe !== 0 || d.pbv !== 0)
+    .filter(
+      (d) =>
+        d.roe != null &&
+        isFinite(d.roe) &&
+        d.pbv != null &&
+        isFinite(d.pbv),
+    )
     .slice(0, 200)
     .map((d) => ({ x: d.pbv, y: d.roe }));
 
