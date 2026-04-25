@@ -19,6 +19,10 @@ import {
 
 const GRID_STROKE = "rgba(255,255,255,0.06)";
 const TICK_FILL = "rgba(255,255,255,0.45)";
+/** Minimum opacity for the leftmost bar in the auto-gradient */
+const BAR_OPACITY_MIN = 0.4;
+/** Additional opacity spread applied across all bars */
+const BAR_OPACITY_RANGE = 0.6;
 const TOOLTIP_STYLE: {
   background: string;
   border: string;
@@ -107,7 +111,7 @@ export function LightweightChart(props: LightweightChartProps) {
                     key={i}
                     fill={
                       s.color ??
-                      `rgba(99,102,241,${0.4 + (props.data.length > 1 ? (i / (props.data.length - 1)) * 0.6 : 0.6)})`
+                      `rgba(99,102,241,${BAR_OPACITY_MIN + (props.data.length > 1 ? (i / (props.data.length - 1)) * BAR_OPACITY_RANGE : BAR_OPACITY_RANGE)})`
                     }
                   />
                 ))}

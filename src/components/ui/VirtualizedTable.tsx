@@ -198,14 +198,14 @@ export function VirtualizedTable<T>({
         <div className="flex items-center justify-between px-4 py-2.5 border border-t-0 border-border-subtle rounded-b-xl bg-surface-base text-sm">
           <span className="text-on-surface-variant text-xs">
             Showing{" "}
-            <strong>{Math.min((page - 1) * limit + 1, total!)}</strong>–
-            <strong>{Math.min(page * limit, total!)}</strong> of{" "}
+            <strong>{Math.min((page - 1) * limit + 1, total ?? 0)}</strong>–
+            <strong>{Math.min(page * limit, total ?? 0)}</strong> of{" "}
             <strong>{total}</strong>
           </span>
           <div className="flex items-center gap-2">
             <button
               disabled={page <= 1}
-              onClick={() => onPageChange!(page - 1)}
+              onClick={() => onPageChange?.(page - 1)}
               className="px-3 py-1 rounded-md border border-border-subtle bg-surface-elevated text-xs disabled:opacity-30 hover:bg-white/10 transition-colors"
             >
               Prev
@@ -215,7 +215,7 @@ export function VirtualizedTable<T>({
             </span>
             <button
               disabled={page >= totalPages}
-              onClick={() => onPageChange!(page + 1)}
+              onClick={() => onPageChange?.(page + 1)}
               className="px-3 py-1 rounded-md border border-border-subtle bg-surface-elevated text-xs disabled:opacity-30 hover:bg-white/10 transition-colors"
             >
               Next

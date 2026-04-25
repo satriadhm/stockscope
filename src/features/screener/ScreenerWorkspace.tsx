@@ -162,7 +162,7 @@ function buildPeDistribution(data: Row[]) {
     }
     for (let i = 0; i < PE_BUCKETS.length - 1; i++) {
       // Bounds are guaranteed by loop condition: i ≤ PE_BUCKETS.length - 2
-      if (pe >= (PE_BUCKETS[i] as number) && pe < (PE_BUCKETS[i + 1] as number)) {
+      if (pe >= PE_BUCKETS[i] && pe < PE_BUCKETS[i + 1]) {
         counts[i]++;
         break;
       }
