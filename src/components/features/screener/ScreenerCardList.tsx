@@ -16,7 +16,7 @@ export function ScreenerCardList({
   if (stocks.length === 0) {
     return (
       <div className="text-center py-16">
-        <span className="material-symbols-outlined text-6xl text-on-surface-variant/20 mb-4 block">
+        <span className="material-symbols-outlined text-6xl text-on-surface-variant/20 mb-4 block" aria-hidden="true">
           search_off
         </span>
         <p className="font-label text-sm uppercase tracking-widest text-on-surface-variant">

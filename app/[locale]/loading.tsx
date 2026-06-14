@@ -3,7 +3,7 @@ export default function Loading(): React.ReactElement {
     <div
       style={{
         minHeight: "100vh",
-        background: "#060d18",
+        background: "var(--bg-app)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -15,7 +15,7 @@ export default function Loading(): React.ReactElement {
           width: 40,
           height: 40,
           border: "3px solid #1e3a52",
-          borderTopColor: "#2a9d8f",
+          borderTopColor: "var(--color-primary)",
           borderRadius: "50%",
           animation: "rti-spin 0.8s linear infinite",
         }}

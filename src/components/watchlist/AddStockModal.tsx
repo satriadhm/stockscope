@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 
 interface AddStockModalProps {
@@ -25,6 +25,26 @@ export function AddStockModal({
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const tickerInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    tickerInputRef.current?.focus();
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen, onClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,15 +85,25 @@ export function AddStockModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-surface-card border border-border-subtle rounded-xl shadow-2xl w-full max-w-md">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-stock-title"
+        onClick={(e) => e.stopPropagation()}
+        className="bg-surface-card border border-border-subtle rounded-xl shadow-2xl w-full max-w-md"
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border-subtle">
-          <h2 className="text-xl font-bold text-text-primary">
+          <h2 id="add-stock-title" className="text-xl font-bold text-text-primary">
             Add Stock
           </h2>
           <button
             onClick={onClose}
+            aria-label="Close dialog"
             className="text-text-muted hover:text-text-primary transition-colors"
           >
             <X className="w-5 h-5" />
@@ -83,39 +113,44 @@ export function AddStockModal({
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
-            <div className="p-3 bg-bear-bg border border-bear/30 rounded-lg text-sm text-bear">
+            <div id="add-stock-error" className="p-3 bg-bear-bg border border-bear/30 rounded-lg text-sm text-bear">
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-2">
+            <label htmlFor="add-stock-ticker" className="block text-sm font-medium text-text-secondary mb-2">
               Stock Ticker *
             </label>
             <input
+              ref={tickerInputRef}
+              id="add-stock-ticker"
               type="text"
               value={ticker}
               onChange={(e) => setTicker(e.target.value.toUpperCase())}
               placeholder="e.g., BBCA, TLKM"
-              className="w-full px-4 py-2 border border-border-subtle rounded-lg 
+              aria-invalid={error ? true : undefined}
+              aria-describedby={`add-stock-ticker-help${error ? ' add-stock-error' : ''}`}
+              className="w-full px-4 py-2 border border-border-subtle rounded-lg
                 bg-surface-elevated text-text-primary font-mono text-lg
                 focus:ring-1 focus:ring-brand focus:border-brand outline-none"
             />
-            <div className="text-xs text-text-muted mt-1">
+            <div id="add-stock-ticker-help" className="text-xs text-text-muted mt-1">
               Enter the JKSE stock ticker symbol
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-2">
+            <label htmlFor="add-stock-notes" className="block text-sm font-medium text-text-secondary mb-2">
               Notes (optional)
             </label>
             <textarea
+              id="add-stock-notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Why are you tracking this stock?"
               rows={3}
-              className="w-full px-4 py-2 border border-border-subtle rounded-lg 
+              className="w-full px-4 py-2 border border-border-subtle rounded-lg
                 bg-surface-elevated text-text-primary
                 focus:ring-1 focus:ring-brand focus:border-brand outline-none resize-none"
             />

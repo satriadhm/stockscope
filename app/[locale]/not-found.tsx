@@ -10,7 +10,7 @@ export default async function NotFound(): Promise<ReactElement> {
     <div
       style={{
         minHeight: "100vh",
-        background: "#060d18",
+        background: "var(--bg-app)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -45,7 +45,7 @@ export default async function NotFound(): Promise<ReactElement> {
           style={{
             display: "inline-block",
             padding: "12px 24px",
-            background: "#2a9d8f",
+            background: "var(--color-primary)",
             color: "#fff",
             borderRadius: 10,
             fontWeight: 700,

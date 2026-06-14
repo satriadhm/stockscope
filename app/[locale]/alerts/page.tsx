@@ -170,10 +170,10 @@ export default function AlertsPage() {
     >
       {/* Notifications */}
       {(error || success) && (
-        <div className={`mb-4 flex items-center gap-2 px-4 py-3 rounded-lg text-sm ${error ? "bg-red-900/20 border border-red-800 text-red-400" : "bg-green-900/20 border border-green-800 text-green-400"}`}>
+        <div aria-live="polite" className={`mb-4 flex items-center gap-2 px-4 py-3 rounded-lg text-sm ${error ? "bg-error/10 border border-error/40 text-error" : "bg-bull/10 border border-bull/40 text-bull"}`}>
           {error ? <AlertCircle className="w-4 h-4 shrink-0" /> : <CheckCircle className="w-4 h-4 shrink-0" />}
           <span className="flex-1">{error ?? success}</span>
-          <button onClick={() => { setError(null); setSuccess(null); }}>
+          <button onClick={() => { setError(null); setSuccess(null); }} aria-label="Dismiss notification">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -200,17 +200,21 @@ export default function AlertsPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="mt-4 pt-4 border-t border-border-subtle space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1">Ticker</label>
+                <label htmlFor="alert-ticker" className="block text-xs font-medium text-text-secondary mb-1">Ticker</label>
                 <input
+                  id="alert-ticker"
                   {...register("ticker", { required: "Required" })}
                   placeholder="BBCA"
+                  aria-invalid={errors.ticker ? true : undefined}
+                  aria-describedby={errors.ticker ? "alert-ticker-error" : undefined}
                   className="w-full px-3 py-2 bg-surface-elevated border border-border-subtle rounded-lg text-sm text-text-primary focus:border-brand focus:ring-1 focus:ring-brand outline-none"
                 />
-                {errors.ticker && <p className="text-red-500 text-xs mt-1">{errors.ticker.message}</p>}
+                {errors.ticker && <p id="alert-ticker-error" className="text-error text-xs mt-1">{errors.ticker.message}</p>}
               </div>
               <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1">Condition</label>
+                <label htmlFor="alert-condition" className="block text-xs font-medium text-text-secondary mb-1">Condition</label>
                 <select
+                  id="alert-condition"
                   {...register("condition", { required: true })}
                   className="w-full px-3 py-2 bg-surface-elevated border border-border-subtle rounded-lg text-sm text-text-primary"
                 >
@@ -219,21 +223,24 @@ export default function AlertsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1">Target Price (IDR)</label>
+                <label htmlFor="alert-target-price" className="block text-xs font-medium text-text-secondary mb-1">Target Price (IDR)</label>
                 <input
+                  id="alert-target-price"
                   type="number"
                   {...register("targetPrice", { required: "Required", valueAsNumber: true, min: { value: 1, message: "Must be > 0" } })}
                   placeholder="5500"
+                  aria-invalid={errors.targetPrice ? true : undefined}
+                  aria-describedby={errors.targetPrice ? "alert-target-price-error" : undefined}
                   className="w-full px-3 py-2 bg-surface-elevated border border-border-subtle rounded-lg text-sm text-text-primary focus:border-brand focus:ring-1 focus:ring-brand outline-none"
                 />
-                {errors.targetPrice && <p className="text-red-500 text-xs mt-1">{errors.targetPrice.message}</p>}
+                {errors.targetPrice && <p id="alert-target-price-error" className="text-error text-xs mt-1">{errors.targetPrice.message}</p>}
               </div>
             </div>
             <div className="flex gap-2">
               <button
                 type="submit"
                 disabled={submitting}
-                className="px-4 py-2 bg-brand text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-opacity"
+                className="px-4 py-2 bg-brand text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
               >
                 {submitting ? "Creating…" : "Create Alert"}
               </button>
@@ -266,7 +273,7 @@ export default function AlertsPage() {
               {/* Status icon */}
               <div className="shrink-0">
                 {alert.triggeredAt ? (
-                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  <CheckCircle className="w-5 h-5 text-bull" />
                 ) : alert.isActive ? (
                   <Bell className="w-5 h-5 text-brand" />
                 ) : (
@@ -278,7 +285,7 @@ export default function AlertsPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-mono font-semibold text-text-primary text-sm">{alert.ticker}</span>
-                  <span className={`text-xs px-1.5 py-0.5 rounded ${alert.condition === "above" ? "bg-green-900/30 text-green-400" : "bg-red-900/30 text-red-400"}`}>
+                  <span className={`text-xs px-1.5 py-0.5 rounded ${alert.condition === "above" ? "bg-bull/10 text-bull" : "bg-bear/10 text-bear"}`}>
                     {alert.condition} {Number(alert.targetPrice).toLocaleString("id-ID")}
                   </span>
                   {alert.triggeredAt && (
@@ -305,7 +312,7 @@ export default function AlertsPage() {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => handleDelete(alert.id)}
-                      className="text-xs px-2 py-1 bg-red-700 hover:bg-red-600 text-white rounded transition-colors"
+                      className="text-xs px-2 py-1 bg-error hover:opacity-80 text-on-error rounded transition-opacity"
                     >
                       Delete
                     </button>
@@ -319,8 +326,9 @@ export default function AlertsPage() {
                 ) : (
                   <button
                     onClick={() => setPendingDelete(alert.id)}
-                    className="p-1 text-text-muted hover:text-red-500 transition-colors"
+                    className="p-1 text-text-muted hover:text-error transition-colors"
                     title="Delete alert"
+                    aria-label={`Delete alert for ${alert.ticker}`}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

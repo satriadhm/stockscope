@@ -74,13 +74,15 @@ export function FilterSidebar({
       <div className="space-y-2 mt-2">
         <button
           onClick={() => toggleSection("sector")}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold text-text-primary hover:bg-surface-elevated transition-colors"
+          aria-expanded={expandedSections.sector}
+          aria-controls="filter-section-sector"
+          className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold text-text-primary hover:bg-surface-elevated transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           Industry Sector
-          <span className="text-text-muted text-lg">{expandedSections.sector ? "−" : "+"}</span>
+          <span className="text-text-muted text-lg" aria-hidden="true">{expandedSections.sector ? "−" : "+"}</span>
         </button>
         {expandedSections.sector && (
-          <div className="px-3 pb-3">
+          <div id="filter-section-sector" className="px-3 pb-3">
             <Select
               options={sectorOptions}
               value={selectedSectorValues[0] || null}
@@ -97,13 +99,15 @@ export function FilterSidebar({
       <div className="space-y-4">
         <button
           onClick={() => toggleSection("price")}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold text-text-primary hover:bg-surface-elevated transition-colors"
+          aria-expanded={expandedSections.price}
+          aria-controls="filter-section-price"
+          className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-semibold text-text-primary hover:bg-surface-elevated transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           Price Range
-          <span className="text-text-muted text-lg">{expandedSections.price ? "−" : "+"}</span>
+          <span className="text-text-muted text-lg" aria-hidden="true">{expandedSections.price ? "−" : "+"}</span>
         </button>
         {expandedSections.price && (
-          <div className="px-3 pb-3 pt-4">
+          <div id="filter-section-price" className="px-3 pb-3 pt-4">
             <ReactSlider
               className="w-full h-1 bg-surface-elevated rounded-full mb-6"
               thumbClassName="w-4 h-4 bg-brand rounded-full -top-1.5 cursor-pointer hover:scale-110 transition-transform focus:outline-none"
@@ -127,7 +131,7 @@ export function FilterSidebar({
       {/* Reset Button */}
       <button
         onClick={onResetFilters}
-        className="mt-auto mb-4 w-full py-2 px-3 rounded-lg border border-border text-sm font-medium text-text-muted hover:text-brand hover:border-brand/30 hover:bg-brand/10 transition-all duration-150"
+        className="mt-auto mb-4 w-full py-2 px-3 rounded-lg border border-border text-sm font-medium text-text-muted hover:text-brand hover:border-brand/30 hover:bg-brand/10 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
         Reset Filters
       </button>

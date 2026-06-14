@@ -16,7 +16,7 @@ export default function Error({
     <div
       style={{
         minHeight: "100vh",
-        background: "#060d18",
+        background: "var(--bg-app)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -59,7 +59,7 @@ export default function Error({
             onClick={() => reset()}
             style={{
               padding: "12px 24px",
-              background: "#2a9d8f",
+              background: "var(--color-primary)",
               color: "#fff",
               border: "none",
               borderRadius: 10,

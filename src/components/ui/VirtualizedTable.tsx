@@ -109,7 +109,7 @@ export function VirtualizedTable<T>({
         className="flex-1 overflow-auto border border-border-subtle rounded-t-xl bg-surface-card"
         style={{ maxHeight }}
       >
-        <table className="w-full min-w-[800px] text-left table-fixed">
+        <table className="w-full min-w-full md:min-w-[800px] text-left table-fixed">
           <thead className="sticky top-0 z-10 bg-surface-elevated border-b border-border-subtle">
             {table.getHeaderGroups().map((hg) => (
               <tr key={hg.id}>
@@ -117,7 +117,15 @@ export function VirtualizedTable<T>({
                   <th
                     key={header.id}
                     style={{ width: header.getSize() }}
-                    className="px-3 py-2.5 text-xs font-semibold uppercase tracking-widest text-on-surface-variant whitespace-nowrap select-none cursor-pointer hover:bg-white/5 transition-colors"
+                    tabIndex={header.column.getCanSort() ? 0 : undefined}
+                    onKeyDown={(e) => {
+                      if (!header.column.getCanSort()) return;
+                      if (e.key === "Enter" || e.key === " ") {
+                        if (e.key === " ") e.preventDefault();
+                        header.column.toggleSorting();
+                      }
+                    }}
+                    className="px-3 py-2.5 text-xs font-semibold uppercase tracking-widest text-on-surface-variant whitespace-nowrap select-none cursor-pointer hover:bg-white/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                     onClick={header.column.getToggleSortingHandler()}
                     aria-sort={
                       header.column.getIsSorted() === "asc"
@@ -206,7 +214,7 @@ export function VirtualizedTable<T>({
             <button
               disabled={page <= 1}
               onClick={() => onPageChange?.(page - 1)}
-              className="px-3 py-1 rounded-md border border-border-subtle bg-surface-elevated text-xs disabled:opacity-30 hover:bg-white/10 transition-colors"
+              className="px-3 py-1 rounded-md border border-border-subtle bg-surface-elevated text-xs disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               Prev
             </button>
@@ -216,7 +224,7 @@ export function VirtualizedTable<T>({
             <button
               disabled={page >= totalPages}
               onClick={() => onPageChange?.(page + 1)}
-              className="px-3 py-1 rounded-md border border-border-subtle bg-surface-elevated text-xs disabled:opacity-30 hover:bg-white/10 transition-colors"
+              className="px-3 py-1 rounded-md border border-border-subtle bg-surface-elevated text-xs disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               Next
             </button>

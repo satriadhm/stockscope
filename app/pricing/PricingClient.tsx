@@ -460,7 +460,7 @@ function TableLayout({ pricing, cta, currentPlan, onCheckout }: LayoutProps) {
           <button
             onClick={() => onCheckout('premium', 'monthly')}
             disabled={currentPlan === 'premium'}
-            className="py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:bg-green-100 disabled:text-green-700"
+            className="py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:bg-green-100 disabled:text-green-700 disabled:cursor-not-allowed"
           >
             {currentPlan === 'premium' ? 'Current Plan' : cta.primaryText}
           </button>
@@ -468,7 +468,7 @@ function TableLayout({ pricing, cta, currentPlan, onCheckout }: LayoutProps) {
           <button
             onClick={() => onCheckout('pro', 'monthly')}
             disabled={currentPlan === 'pro'}
-            className="py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors disabled:bg-green-100 disabled:text-green-700"
+            className="py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors disabled:bg-green-100 disabled:text-green-700 disabled:cursor-not-allowed"
           >
             {currentPlan === 'pro' ? 'Current Plan' : cta.primaryText}
           </button>

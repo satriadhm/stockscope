@@ -26,27 +26,29 @@ export function ResultsHeader({
       <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface-input p-1">
         <button
           onClick={() => onViewChange("table")}
-          className={`p-2 rounded-md transition-all ${
+          className={`p-2 rounded-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
             view === "table"
               ? "bg-brand-dim text-brand"
               : "text-text-muted hover:text-text-primary"
           }`}
           title="Table view"
           aria-label="Table view"
+          aria-pressed={view === "table"}
         >
-          <span className="material-symbols-outlined">list</span>
+          <span className="material-symbols-outlined" aria-hidden="true">list</span>
         </button>
         <button
           onClick={() => onViewChange("cards")}
-          className={`p-2 rounded-md transition-all ${
+          className={`p-2 rounded-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
             view === "cards"
               ? "bg-brand-dim text-brand"
               : "text-text-muted hover:text-text-primary"
           }`}
           title="Card view"
           aria-label="Card view"
+          aria-pressed={view === "cards"}
         >
-          <span className="material-symbols-outlined">grid_view</span>
+          <span className="material-symbols-outlined" aria-hidden="true">grid_view</span>
         </button>
       </div>
     </div>

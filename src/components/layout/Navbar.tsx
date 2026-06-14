@@ -117,8 +117,9 @@ export function Navbar(): React.ReactElement {
                 text-text-primary
               "
               aria-label={t("toggleMenu")}
+              aria-expanded={mobileMenuOpen}
             >
-              <span className="text-lg">☰</span>
+              <span className="text-lg" aria-hidden="true">☰</span>
             </button>
           </div>
         </div>

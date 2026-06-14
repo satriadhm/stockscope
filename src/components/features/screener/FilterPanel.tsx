@@ -48,7 +48,7 @@ export function FilterPanel({
     <div className="glass-effect rounded-xl p-6 mb-6">
       {/* Terminal Header */}
       <h2 className="font-label text-lg font-bold text-on-surface mb-6 flex items-center gap-2">
-        <span className="material-symbols-outlined text-primary">tune</span>
+        <span className="material-symbols-outlined text-primary" aria-hidden="true">tune</span>
         {t("filters")}
       </h2>
 
@@ -60,7 +60,7 @@ export function FilterPanel({
             {t("searchStock")}
           </label>
           <div className="relative group">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-sm">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-sm" aria-hidden="true">
               search
             </span>
             <input
@@ -76,11 +76,12 @@ export function FilterPanel({
             {searchQuery && (
               <button
                 onClick={() => onSearchChange("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant 
-                           hover:text-error transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant
+                           hover:text-error transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
                 title="Clear search"
+                aria-label="Clear search"
               >
-                <span className="material-symbols-outlined text-sm">close</span>
+                <span className="material-symbols-outlined text-sm" aria-hidden="true">close</span>
               </button>
             )}
           </div>
@@ -176,7 +177,8 @@ export function FilterPanel({
                     onClick={() =>
                       onGovTierChange(selectedGovTier === tier ? "" : tier)
                     }
-                    className={`text-[10px] font-bold py-2 rounded-md transition-all uppercase tracking-wider
+                    aria-pressed={selectedGovTier === tier}
+                    className={`text-[10px] font-bold py-2 rounded-md transition-all uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary
                       ${
                         selectedGovTier === tier
                           ? tier === "Green"
@@ -206,9 +208,9 @@ export function FilterPanel({
                     onMaxScoreChange("");
                     onGovTierChange("");
                   }}
-                  className="border border-outline-variant/20 text-on-surface-variant px-4 py-2 
+                  className="border border-outline-variant/20 text-on-surface-variant px-4 py-2
                              rounded-lg text-xs font-label uppercase tracking-wider transition-all
-                             hover:border-error hover:text-error"
+                             hover:border-error hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   {t("clearAdvancedFilters")}
                 </button>

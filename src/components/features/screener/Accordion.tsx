@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 
 interface AccordionProps {
   title: string;
@@ -16,11 +16,15 @@ export function Accordion({
   defaultOpen = false,
 }: AccordionProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+  const panelId = useId();
 
   return (
     <div style={{ marginTop: 16 }}>
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-controls={panelId}
+        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         style={{
           width: "100%",
           display: "flex",
@@ -69,6 +73,7 @@ export function Accordion({
           )}
         </div>
         <span
+          aria-hidden="true"
           style={{
             fontSize: 14,
             transition: "transform 0.2s",
@@ -82,6 +87,7 @@ export function Accordion({
 
       {isOpen && (
         <div
+          id={panelId}
           style={{
             paddingTop: 16,
             animation: "slideDown 0.2s ease-out",

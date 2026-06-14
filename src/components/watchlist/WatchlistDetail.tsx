@@ -101,6 +101,7 @@ function SortableItem({ item, onRemove, pendingRemove, onConfirmRemove, onCancel
           onClick={() => onRemove(item.ticker)}
           className="p-1 text-text-muted hover:text-bear transition-colors flex-shrink-0"
           title="Remove from watchlist"
+          aria-label={`Remove ${item.ticker} from watchlist`}
         >
           <X className="w-4 h-4" />
         </button>
@@ -213,7 +214,7 @@ export function WatchlistDetail({ watchlistId, onAddStock }: WatchlistDetailProp
 
   if (error) {
     return (
-      <div className="p-6 text-center text-red-500">
+      <div className="p-6 text-center text-error">
         Error: {error}
       </div>
     );
@@ -221,7 +222,7 @@ export function WatchlistDetail({ watchlistId, onAddStock }: WatchlistDetailProp
 
   if (!watchlistId) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+      <div className="flex items-center justify-center h-full text-text-muted">
         Select a watchlist to view details
       </div>
     );
@@ -254,7 +255,7 @@ export function WatchlistDetail({ watchlistId, onAddStock }: WatchlistDetailProp
         <div className="mx-6 mt-4 flex items-center gap-2 px-4 py-3 bg-bear-bg border border-bear/30 rounded-lg text-bear text-sm">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span className="flex-1">{inlineError}</span>
-          <button onClick={() => setInlineError(null)} className="text-bear hover:opacity-70">
+          <button onClick={() => setInlineError(null)} aria-label="Dismiss error" className="text-bear hover:opacity-70">
             <X className="w-4 h-4" />
           </button>
         </div>

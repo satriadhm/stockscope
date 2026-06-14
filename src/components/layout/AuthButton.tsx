@@ -33,6 +33,16 @@ export function AuthButton(): React.ReactElement {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    function handleEscape(event: KeyboardEvent): void {
+      if (event.key === "Escape") {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, []);
+
   if (status === "loading") {
     return (
       <div
@@ -77,7 +87,7 @@ export function AuthButton(): React.ReactElement {
       <button
         onClick={() => setDropdownOpen((o) => !o)}
         aria-expanded={dropdownOpen}
-        aria-haspopup="true"
+        aria-haspopup="menu"
         style={{
           display: "flex",
           alignItems: "center",
@@ -130,6 +140,7 @@ export function AuthButton(): React.ReactElement {
 
       {dropdownOpen && (
         <div
+          role="menu"
           style={{
             position: "absolute",
             top: "100%",

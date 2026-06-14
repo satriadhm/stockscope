@@ -32,11 +32,13 @@ export function FilterPills({
           <button
             key={pill.id}
             onClick={() => onToggle?.(pill.id)}
+            aria-pressed={isActive}
             className={`
               shrink-0 px-3 py-1.5
               rounded-full text-xs font-medium
               border transition-all duration-150
               whitespace-nowrap
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary
               ${
                 isActive
                   ? "bg-brand-dim border-brand/30 text-brand"
@@ -45,7 +47,7 @@ export function FilterPills({
             `}
           >
             {pill.label}
-            {isActive && <span className="ml-1.5">✕</span>}
+            {isActive && <span className="ml-1.5" aria-hidden="true">✕</span>}
           </button>
         );
       })}
@@ -63,6 +65,7 @@ export function FilterPills({
             hover:bg-bear-bg
             transition-all duration-150
             whitespace-nowrap
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary
           "
         >
           Reset

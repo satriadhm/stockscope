@@ -147,7 +147,7 @@ export function KpiCards({
             {k.val}
           </div>
           {k.sub && (
-            <div style={{ fontSize: 10, color: "#6b8aad", marginTop: 2 }}>
+            <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2 }}>
               {k.sub}
             </div>
           )}
