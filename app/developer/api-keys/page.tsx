@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import { redirect } from 'next/navigation';
@@ -129,15 +130,15 @@ export default async function DeveloperApiKeysPage() {
               <p className="text-blue-700 dark:text-blue-300 mb-3">
                 Learn how to authenticate requests, handle rate limits, and integrate our endpoints.
               </p>
-              <a 
-                href="/docs/api" 
+              <Link
+                href="/docs/api"
                 className="inline-flex items-center text-blue-600 dark:text-blue-400 font-medium hover:underline"
               >
                 View API Docs
                 <svg className="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-              </a>
+              </Link>
             </div>
           </div>
         </div>

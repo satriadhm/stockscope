@@ -3,9 +3,10 @@ import { prisma } from '@/lib/prisma';
 // Use require and ignore typing to gracefully handle the missing package on Windows
 let talib: any = null;
 try {
-  // @ts-ignore
+  // Optional native addon; loaded lazily with a graceful JS fallback below.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   talib = require('talib');
-} catch (err) {
+} catch {
   console.warn('talib native package is not available. Using JS fallback/mocks for indicators.');
 }
 

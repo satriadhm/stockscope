@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    console.log(`[TRANSACTION] Created: ${transaction.id} | Order: ${orderId} | User: ${user.email}`);
+    console.log(`[TRANSACTION] Created: ${transaction.id} | Order: ${orderId} | User: ${user.id}`);
 
     return NextResponse.json({
       transaction,

@@ -27,7 +27,9 @@ declare module 'react-table' {
     extends UseSortByState<D>,
       UsePaginationState<D> {}
 
-  // Merge useSortBy column properties (isSorted, isSortedDesc, getSortByToggleProps)
+  // Merge useSortBy column properties (isSorted, isSortedDesc, getSortByToggleProps).
+  // Declaration merging requires `interface`, so the empty-body rule is disabled here.
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface ColumnInstance<D extends object> extends UseSortByColumnProps<D> {}
 
   // Merge useSortBy instance props (rows, sortedRows) and usePagination instance

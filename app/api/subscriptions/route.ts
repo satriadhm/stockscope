@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
       data: { plan: body.planId }
     });
 
-    console.log(`[SUBSCRIPTION] Created: ${subscription.id} | User: ${user.email} | Plan: ${body.planId} | Status: ${status}`);
+    console.log(`[SUBSCRIPTION] Created: ${subscription.id} | User: ${user.id} | Plan: ${body.planId} | Status: ${status}`);
 
     return NextResponse.json({
       subscription,
@@ -294,7 +294,7 @@ export async function DELETE(req: NextRequest) {
       data: { plan: 'free' }
     });
 
-    console.log(`[SUBSCRIPTION] Cancelled: ${subscription.id} | User: ${user.email} | Reason: ${body.cancelReason || 'None'}`);
+    console.log(`[SUBSCRIPTION] Cancelled: ${subscription.id} | User: ${user.id} | Reason: ${body.cancelReason || 'None'}`);
 
     // Track cancellation event (analytics)
     try {
