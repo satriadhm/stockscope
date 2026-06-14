@@ -18,6 +18,8 @@ export interface Stock {
   volume?: number;
   lastPrice?: number;
   marketCap?: number;
+  /** Timestamp of the last live price refresh (set by the price engine). */
+  priceUpdatedAt?: Date | string;
 }
 
 export interface Owner {

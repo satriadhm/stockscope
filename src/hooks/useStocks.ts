@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { filterStocks, sortStocks } from "@/lib/services/dataTransformService";
+import { useLivePrices } from "@/hooks/useLivePrices";
 
 import type {
   SortOptions,
@@ -89,7 +90,27 @@ export function useStockData(
     fetchStocks();
   }, [tier, searchText, sortBy, sortDir, hierarchyLevel, flag]);
 
-  return state;
+  // Overlay live prices (lastPrice/volume/marketCap) from the socket broadcast
+  // onto the fetched rows. Ownership/concentration fields are never touched.
+  const { prices } = useLivePrices();
+  return useMemo(() => {
+    if (prices.size === 0) return state;
+    const overlay = (s: Stock): Stock => {
+      const live = prices.get(s.code.toUpperCase());
+      if (!live) return s;
+      return {
+        ...s,
+        lastPrice: live.lastPrice,
+        volume: live.volume ?? s.volume,
+        marketCap: live.marketCap ?? s.marketCap,
+      };
+    };
+    return {
+      ...state,
+      RAW: state.RAW.map(overlay),
+      filtered: state.filtered.map(overlay),
+    };
+  }, [state, prices]);
 }
 
 /**

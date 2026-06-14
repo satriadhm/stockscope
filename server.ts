@@ -4,6 +4,8 @@ import next from 'next';
 import { Server as SocketIOServer } from 'socket.io';
 import { PrismaClient } from '@prisma/client';
 import { sendSMSAlert, sendEmailAlert } from './src/lib/notifications';
+import { fetchQuotes } from './src/lib/services/priceService';
+import { stockQueries } from './src/lib/mongodb';
 import express from 'express';
 import compression from 'compression';
 import swaggerJsdoc from 'swagger-jsdoc';
@@ -124,67 +126,102 @@ app.prepare().then(() => {
     });
   });
 
-  // Polling engine
+  // Real-time-ish price engine.
+  //
+  // On each tick we fetch live quotes from the price provider (Yahoo Finance),
+  // persist them to the screener's price fields, broadcast them to all clients
+  // for the live table, and evaluate active price alerts against real prices.
+  const PRICE_REFRESH_MS = Number(process.env.PRICE_REFRESH_MS) || 30_000;
+  // Cap the broad refresh so we don't hammer the upstream provider. Alert
+  // tickers are always included on top of this working set.
+  const MAX_REFRESH_CODES = Number(process.env.PRICE_MAX_CODES) || 150;
+
+  let priceRefreshInFlight = false;
   setInterval(async () => {
+    if (priceRefreshInFlight) return; // avoid overlapping ticks on slow upstream
+    priceRefreshInFlight = true;
     try {
-      // 1. Fetch active alerts
+      // 1. Active alerts drive which tickers we *must* have fresh prices for.
       const alerts = await prisma.priceAlert.findMany({
         where: { isActive: true },
       });
+      const alertTickers = alerts.map((a: { ticker: string }) => a.ticker);
 
-      if (alerts.length === 0) return;
+      // 2. Plus a bounded slice of the universe so the screener table is live.
+      let universe: string[] = [];
+      try {
+        universe = (await stockQueries.allCodes()).slice(0, MAX_REFRESH_CODES);
+      } catch (dbErr) {
+        console.error('[price] failed to load stock universe:', dbErr);
+      }
 
-      // Group active alerts by ticker to reduce external API calls
-      const tickers = [...new Set(alerts.map((a: { ticker: string }) => a.ticker))];
+      const codes = [...new Set([...alertTickers, ...universe])];
+      if (codes.length === 0) return;
 
-      for (const ticker of tickers) {
-        // Mock IDX API request as requested
-        // `const response = await axios.get('https://api.idx.co.id/stocks/' + ticker);`
-        
-        // MOCK DATA for Phase 2: Randomly fluctuate mock price
-        const mockPrice = Math.random() * 1000 + 5000; // Mock price around 5000-6000
+      // 3. Fetch live quotes. Failed symbols are simply absent from the map.
+      const quotes = await fetchQuotes(codes);
+      if (quotes.size === 0) return;
 
-        const alertsForTicker = alerts.filter((a: { ticker: string }) => a.ticker === ticker);
-        
-        for (const alert of alertsForTicker) {
-          let triggered = false;
-          if (alert.condition === 'above' && mockPrice >= alert.targetPrice) triggered = true;
-          if (alert.condition === 'below' && mockPrice <= alert.targetPrice) triggered = true;
+      // 4. Persist price-feed fields (ownership fields untouched).
+      const updates = [...quotes.values()];
+      try {
+        await stockQueries.bulkUpdatePrices(updates);
+      } catch (dbErr) {
+        console.error('[price] failed to persist prices:', dbErr);
+      }
 
-          if (triggered) {
-            console.log(`[ALERT] Triggered alert for ${alert.userId} on ${ticker}`);
-            
-            // Mark as triggered in DB
-            await prisma.priceAlert.update({
-              where: { id: alert.id },
-              data: { isActive: false, triggeredAt: new Date() }
-            });
-            // Emit via socket
-            io.to(`user:${alert.userId}`).emit('alert:triggered', { 
-              stock: ticker, 
-              message: `Target ${alert.condition} ${alert.targetPrice} hit! Current: ${mockPrice.toFixed(0)}`,
-              price: mockPrice
-            });
+      // 5. Broadcast to all connected clients for the live table.
+      io.emit('prices:update', {
+        at: Date.now(),
+        prices: updates.map((q) => ({
+          code: q.code,
+          lastPrice: q.lastPrice,
+          volume: q.volume,
+          marketCap: q.marketCap,
+        })),
+      });
 
-            // Dispatch to Notification Channels (Phase 3)
-            // Fetch user plan and preferences
-            const user = await prisma.user.findUnique({ where: { id: alert.userId } });
-            if (user && user.plan === 'premium') {
-              if (alert.notifySms) {
-                // Assuming we have user.phone, we use a mock for now
-                sendSMSAlert('+1234567890', `Stockscope Alert: ${ticker} hit ${mockPrice.toFixed(2)}`);
-              }
-              if (alert.notifyEmail) {
-                sendEmailAlert(user.email, `Stockscope Alert: ${ticker}`, `<p>${ticker} recently crossed your target!</p>`);
-              }
-            }
+      // 6. Evaluate alerts against the freshly fetched real prices.
+      for (const alert of alerts) {
+        const quote = quotes.get(alert.ticker.toUpperCase());
+        if (!quote) continue; // no fresh price this tick; try again next time
+        const price = quote.lastPrice;
+
+        let triggered = false;
+        if (alert.condition === 'above' && price >= alert.targetPrice) triggered = true;
+        if (alert.condition === 'below' && price <= alert.targetPrice) triggered = true;
+        if (!triggered) continue;
+
+        console.log(`[ALERT] Triggered alert for ${alert.userId} on ${alert.ticker}`);
+
+        await prisma.priceAlert.update({
+          where: { id: alert.id },
+          data: { isActive: false, triggeredAt: new Date() },
+        });
+
+        io.to(`user:${alert.userId}`).emit('alert:triggered', {
+          stock: alert.ticker,
+          message: `Target ${alert.condition} ${alert.targetPrice} hit! Current: ${price.toFixed(0)}`,
+          price,
+        });
+
+        const user = await prisma.user.findUnique({ where: { id: alert.userId } });
+        if (user && user.plan === 'premium') {
+          if (alert.notifySms) {
+            // Assuming we have user.phone, we use a mock for now
+            sendSMSAlert('+1234567890', `Stockscope Alert: ${alert.ticker} hit ${price.toFixed(2)}`);
+          }
+          if (alert.notifyEmail) {
+            sendEmailAlert(user.email, `Stockscope Alert: ${alert.ticker}`, `<p>${alert.ticker} recently crossed your target!</p>`);
           }
         }
       }
     } catch (error) {
-      console.error('IDX API Polling error:', error);
+      console.error('Price refresh error:', error);
+    } finally {
+      priceRefreshInFlight = false;
     }
-  }, 15000);
+  }, PRICE_REFRESH_MS);
 
   const PORT = process.env.PORT || 3000;
   server.listen(PORT, (err?: any) => {
