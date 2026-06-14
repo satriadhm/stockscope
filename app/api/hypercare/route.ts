@@ -4,10 +4,9 @@
  * Returns current paywall hypercare metrics and rollback trigger status
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
+import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/auth/guards';
 import {
   type HypercareMetrics,
   BASELINE_METRICS,
@@ -15,14 +14,11 @@ import {
   formatMetricsReport,
 } from '@/lib/hypercare';
 
-export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  
+export async function GET() {
   // Only admins can view hypercare dashboard
-  if (!session?.user?.email || session.user.email !== 'admin@stockscope.id') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  
+  const { error: adminError } = await requireAdmin();
+  if (adminError) return adminError;
+
   try {
     const now = new Date();
     const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);

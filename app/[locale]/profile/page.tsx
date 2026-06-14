@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession, signIn } from "next-auth/react";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { AppShell } from "@/components/features/integration/AppShell";
 
 const PLAN_LABELS: Record<string, { label: string; color: string }> = {
@@ -144,12 +144,12 @@ export default function ProfilePage() {
           )}
         </ul>
         {plan === "pro" && (
-          <a
+          <Link
             href="/developer/api-keys"
             className="inline-block mt-2 text-sm text-brand hover:underline"
           >
             Manage API Keys →
-          </a>
+          </Link>
         )}
       </section>
     </AppShell>

@@ -9,7 +9,7 @@ describe('Enrichment Service', () => {
       hierarchyLevel: 'High',
     };
     
-    // @ts-ignore - Ignoring missing other fields from Stock type for testing purposes
+    // @ts-expect-error - Ignoring missing other fields from Stock type for testing purposes
     const result = enrichStock(mockStock);
     
     expect(result.scores).toBeDefined();
@@ -27,7 +27,7 @@ describe('Enrichment Service', () => {
       hierarchyLevel: 'Moderate',
     };
 
-    // @ts-ignore
+    // @ts-expect-error - partial Stock fixture for testing
     const result = enrichStock(unknownStock);
 
     expect(result.scores).toBeDefined();
@@ -42,7 +42,7 @@ describe('Enrichment Service', () => {
       { code: 'BBRI', issuer: 'BRI', hierarchyLevel: 'High' }
     ];
 
-    // @ts-ignore
+    // @ts-expect-error - partial Stock fixtures for testing
     const mapped = enrichStocks(list);
     
     expect(mapped.length).toBe(2);

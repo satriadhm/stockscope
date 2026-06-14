@@ -20,7 +20,7 @@ export async function checkAlertRateLimit(userId: string, plan: string): Promise
 
   try {
     const currentCountStr = await redisClient.get(redisKey);
-    let count = currentCountStr ? parseInt(currentCountStr, 10) : 0;
+    const count = currentCountStr ? parseInt(currentCountStr, 10) : 0;
 
     if (count >= 3) {
       return false; // Limit exceeded

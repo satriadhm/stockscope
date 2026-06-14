@@ -1,7 +1,17 @@
+import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
+import { authOptions } from "@/lib/auth/config";
+
 export async function POST(req: NextRequest) {
+  // Only an authenticated user can start a checkout, and only for themselves.
+  const session = await getServerSession(authOptions);
+  const sessionUserId = (session?.user as { id?: string } | undefined)?.id;
+  if (!sessionUserId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   // Validate env vars and initialize Stripe at runtime, not at build time
   if (process.env.NODE_ENV === "production" && !process.env.STRIPE_SECRET_KEY) {
     throw new Error("STRIPE_SECRET_KEY must be set in production");
@@ -35,9 +45,11 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { userId, tierId, billingCycle } = body;
+    const { tierId, billingCycle } = body;
+    // Always use the authenticated user's id — never trust a client-supplied one.
+    const userId = sessionUserId;
 
-    if (!userId || !tierId) {
+    if (!tierId) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 

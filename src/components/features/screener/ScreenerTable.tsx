@@ -136,11 +136,16 @@ export function ScreenerTable({
       <div className="w-full overflow-x-auto flex-1 border border-border-subtle rounded-t-xl bg-surface-card">
         <table {...getTableProps()} className="w-full text-left min-w-[600px]">
           <thead className="bg-surface-elevated border-b border-border-subtle sticky top-0 z-10">
-            {headerGroups.map(hg => (
-              <tr {...hg.getHeaderGroupProps()}>
-                {hg.headers.map(column => (
-                  <th 
-                    {...column.getHeaderProps(column.getSortByToggleProps())} 
+            {headerGroups.map(hg => {
+              const { key: hgKey, ...hgProps } = hg.getHeaderGroupProps();
+              return (
+              <tr key={hgKey} {...hgProps}>
+                {hg.headers.map(column => {
+                  const { key: colKey, ...colProps } = column.getHeaderProps(column.getSortByToggleProps());
+                  return (
+                  <th
+                    key={colKey}
+                    {...colProps}
                     className="p-3 font-label text-xs uppercase tracking-widest text-on-surface-variant cursor-pointer hover:bg-white/5 transition-colors whitespace-nowrap"
                   >
                     <div className="flex items-center gap-2">
@@ -156,24 +161,31 @@ export function ScreenerTable({
                        )}
                     </div>
                   </th>
-                ))}
+                  );
+                })}
               </tr>
-            ))}
+              );
+            })}
           </thead>
           <tbody {...getTableBodyProps()}>
             {tablePage.map(row => {
               prepareRow(row);
+              const { key: rowKey, ...rowProps } = row.getRowProps();
               return (
-                <tr 
-                  {...row.getRowProps()} 
+                <tr
+                  key={rowKey}
+                  {...rowProps}
                   className="border-b border-border-subtle/30 hover:bg-white/5 transition-colors cursor-pointer group"
                   onClick={() => onStockClick(row.original)}
                 >
-                  {row.cells.map(cell => (
-                    <td {...cell.getCellProps()} className="p-3 group-hover:text-primary transition-colors whitespace-nowrap">
+                  {row.cells.map(cell => {
+                    const { key: cellKey, ...cellProps } = cell.getCellProps();
+                    return (
+                    <td key={cellKey} {...cellProps} className="p-3 group-hover:text-primary transition-colors whitespace-nowrap">
                       {cell.render("Cell")}
                     </td>
-                  ))}
+                    );
+                  })}
                 </tr>
               );
             })}

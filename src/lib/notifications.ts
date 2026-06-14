@@ -31,7 +31,7 @@ export async function sendSMSAlert(phone: string, message: string) {
       from: process.env.TWILIO_PHONE_NUMBER || '+1234567890',
       to: phone,
     });
-    console.log(`[SMS] Sent to ${phone}`);
+    console.log(`[SMS] Sent`);
     return true;
   } catch (error) {
     console.error('[SMS ERROR]', error);
@@ -56,7 +56,7 @@ export async function sendEmailAlert(email: string, subject: string, htmlMessage
       html: htmlMessage,
     });
     
-    console.log(`[EMAIL] Sent to ${email}. MessageId: ${info.messageId}`);
+    console.log(`[EMAIL] Sent. MessageId: ${info.messageId}`);
     return true;
   } catch (error) {
     console.error('[EMAIL ERROR]', error);
