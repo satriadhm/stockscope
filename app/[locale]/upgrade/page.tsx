@@ -128,7 +128,7 @@ export default function UpgradePage(): React.ReactElement {
     <div
       style={{
         minHeight: "100vh",
-        background: "#060d18",
+        background: "var(--bg-app)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -164,11 +164,11 @@ export default function UpgradePage(): React.ReactElement {
           <div
             style={{
               background: "#2a9d8f22",
-              border: "1px solid #2a9d8f",
+              border: "1px solid var(--color-primary)",
               borderRadius: 8,
               padding: "12px 16px",
               marginBottom: 20,
-              color: "#2a9d8f",
+              color: "var(--color-primary)",
               fontSize: 14,
             }}
           >
@@ -184,7 +184,7 @@ export default function UpgradePage(): React.ReactElement {
                 margin: "10px auto 0",
                 padding: "8px 20px",
                 fontSize: 12,
-                background: "#2a9d8f",
+                background: "var(--color-primary)",
                 border: "none",
                 borderRadius: 8,
                 color: "#fff",
@@ -202,11 +202,11 @@ export default function UpgradePage(): React.ReactElement {
           <div
             style={{
               background: "#e9c46a22",
-              border: "1px solid #e9c46a",
+              border: "1px solid var(--color-warning)",
               borderRadius: 8,
               padding: "12px 16px",
               marginBottom: 20,
-              color: "#e9c46a",
+              color: "var(--color-warning)",
               fontSize: 14,
             }}
           >
@@ -218,11 +218,11 @@ export default function UpgradePage(): React.ReactElement {
           <div
             style={{
               background: "#e76f5122",
-              border: "1px solid #e76f51",
+              border: "1px solid var(--color-negative)",
               borderRadius: 8,
               padding: "12px 16px",
               marginBottom: 20,
-              color: "#e76f51",
+              color: "var(--color-negative)",
               fontSize: 14,
             }}
           >
@@ -230,7 +230,9 @@ export default function UpgradePage(): React.ReactElement {
           </div>
         )}
 
-        <div style={{ fontSize: 48, marginBottom: 16 }}>­ƒöÆ</div>
+        <div style={{ fontSize: 48, marginBottom: 16 }} aria-hidden="true">
+          🔒
+        </div>
 
         <h1
           style={{
@@ -273,14 +275,15 @@ export default function UpgradePage(): React.ReactElement {
               }}
             >
               <span
+                aria-hidden="true"
                 style={{
-                  color: "#2a9d8f",
+                  color: "var(--color-primary)",
                   fontWeight: 700,
                   fontSize: 16,
                   flexShrink: 0,
                 }}
               >
-                Ô£ô
+                ✓
               </span>
               <span
                 style={{
@@ -318,7 +321,7 @@ export default function UpgradePage(): React.ReactElement {
           style={{
             width: "100%",
             padding: 14,
-            background: isLoading || isSuccess ? "#457b9d" : "#2a9d8f",
+            background: isLoading || isSuccess ? "#457b9d" : "var(--color-primary)",
             border: "none",
             borderRadius: 10,
             color: "#fff",
@@ -372,7 +375,7 @@ export default function UpgradePage(): React.ReactElement {
         {error && (
           <div
             style={{
-              color: "#e76f51",
+              color: "var(--color-negative)",
               fontSize: 12,
               marginTop: 8,
             }}

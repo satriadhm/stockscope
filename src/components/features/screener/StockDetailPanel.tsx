@@ -41,7 +41,7 @@ export function StockDetailPanel({
 
       {/* Desktop: Fixed Right Panel */}
       <aside
-        className="hidden md:flex flex-col fixed right-0 top-[88px] w-[400px] h-[calc(100vh-88px)]
+        className="hidden md:flex flex-col fixed right-0 top-[88px] w-full max-w-[400px] md:w-[400px] h-[calc(100vh-88px)]
                         bg-surface border-l border-outline-variant
                         overflow-y-auto z-50 animate-in slide-in-from-right duration-300"
       >
@@ -95,10 +95,10 @@ function PanelContent({
           </div>
           <button
             onClick={onClose}
-            className="p-2 -mr-2 text-on-surface-variant hover:text-on-surface transition-colors rounded-full hover:bg-white/5"
+            className="p-2 -mr-2 text-on-surface-variant hover:text-on-surface transition-colors rounded-full hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             aria-label="Close"
           >
-            <span className="material-symbols-outlined">close</span>
+            <span className="material-symbols-outlined" aria-hidden="true">close</span>
           </button>
         </div>
 
@@ -229,7 +229,7 @@ function PanelContent({
                   key={flag}
                   className="flex items-center gap-3 bg-bear/5 border border-bear/10 p-3 rounded-lg"
                 >
-                  <span className="text-sm">🚩</span>
+                  <span className="text-sm" aria-hidden="true">🚩</span>
                   <span className="font-body text-sm text-on-surface">
                     {flag}
                   </span>

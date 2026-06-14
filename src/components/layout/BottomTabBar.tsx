@@ -62,7 +62,7 @@ export function BottomTabBar(): React.ReactElement {
             `}
             aria-label={tab.label}
           >
-            <span className="text-xl">{tab.icon}</span>
+            <span className="text-xl" aria-hidden="true">{tab.icon}</span>
             <span
               className={`
                 text-2xs font-medium

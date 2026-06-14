@@ -32,7 +32,7 @@ export function SearchBar({ onSearch, placeholder = "Search ticker or company...
 
   return (
     <div className="relative w-full">
-      <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[18px] text-text-muted pointer-events-none">
+      <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[18px] text-text-muted pointer-events-none" aria-hidden="true">
         search
       </span>
       <input
@@ -49,16 +49,18 @@ export function SearchBar({ onSearch, placeholder = "Search ticker or company...
       />
       {value && (
         <button
+          type="button"
           onClick={() => {
             setValue('');
             onSearch('');
           }}
+          aria-label="Clear search"
           className="
             absolute right-3 top-1/2 -translate-y-1/2
             p-1 rounded-md text-text-muted hover:text-text-primary
             hover:bg-surface-elevated transition-colors flex items-center justify-center
           ">
-          <span className="material-symbols-outlined text-[16px]">close</span>
+          <span className="material-symbols-outlined text-[16px]" aria-hidden="true">close</span>
         </button>
       )}
     </div>

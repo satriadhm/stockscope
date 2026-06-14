@@ -87,11 +87,14 @@ export function Pagination({
             type="button"
             onClick={() => onPageChange(page - 1)}
             disabled={!canPrev}
+            aria-label="Previous page"
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed"
             style={buttonStyle(!canPrev)}
           >
             Prev
           </button>
           <span
+            aria-current="page"
             style={{
               padding: "6px 12px",
               fontSize: 11,
@@ -105,6 +108,8 @@ export function Pagination({
             type="button"
             onClick={() => onPageChange(page + 1)}
             disabled={!canNext}
+            aria-label="Next page"
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed"
             style={buttonStyle(!canNext)}
           >
             Next

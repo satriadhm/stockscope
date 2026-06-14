@@ -81,7 +81,9 @@ export default function HypercareClient() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold mb-2">🚨 Hypercare Dashboard</h1>
+            <h1 className="text-3xl font-bold mb-2">
+              <span aria-hidden="true">🚨</span> Hypercare Dashboard
+            </h1>
             <p className="text-slate-400">Paywall Launch Monitoring</p>
           </div>
           
@@ -109,7 +111,7 @@ export default function HypercareClient() {
         {evaluation.shouldRollback ? (
           <div className="bg-red-900/30 border border-red-500 rounded-lg p-6 mb-8">
             <div className="flex items-center gap-3 mb-2">
-              <span className="text-3xl">🚨</span>
+              <span className="text-3xl" aria-hidden="true">🚨</span>
               <h2 className="text-2xl font-bold text-red-400">CRITICAL: ROLLBACK RECOMMENDED</h2>
             </div>
             <p className="text-slate-300 mb-4">
@@ -137,7 +139,7 @@ export default function HypercareClient() {
         ) : evaluation.triggeredCount > 0 ? (
           <div className="bg-yellow-900/30 border border-yellow-500 rounded-lg p-6 mb-8">
             <div className="flex items-center gap-3 mb-2">
-              <span className="text-3xl">⚠️</span>
+              <span className="text-3xl" aria-hidden="true">⚠️</span>
               <h2 className="text-2xl font-bold text-yellow-400">WARNING: Issues Detected</h2>
             </div>
             <p className="text-slate-300">
@@ -147,7 +149,7 @@ export default function HypercareClient() {
         ) : (
           <div className="bg-green-900/30 border border-green-500 rounded-lg p-6 mb-8">
             <div className="flex items-center gap-3">
-              <span className="text-3xl">✅</span>
+              <span className="text-3xl" aria-hidden="true">✅</span>
               <div>
                 <h2 className="text-2xl font-bold text-green-400">ALL CLEAR</h2>
                 <p className="text-slate-300">No issues detected. System operating normally.</p>

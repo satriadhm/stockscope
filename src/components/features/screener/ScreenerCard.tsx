@@ -53,15 +53,24 @@ export function ScreenerCard({ stock, onClick }: ScreenerCardProps) {
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          if (e.key === " ") e.preventDefault();
+          onClick();
+        }
+      }}
       className={`
-        bg-surface-container 
-        rounded-lg 
-        p-4 
-        cursor-pointer 
-        transition-all 
-        duration-200 
+        bg-surface-container
+        rounded-lg
+        p-4
+        cursor-pointer
+        transition-all
+        duration-200
         hover:bg-surface-container-high
         border-l-4
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary
         ${isPositive ? "border-primary" : "border-error"}
       `}
       onClick={onClick}

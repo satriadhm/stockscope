@@ -29,10 +29,19 @@ export function ColumnVisibilityMenu({
       }
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
+
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
-      return () =>
+      document.addEventListener("keydown", handleKeyDown);
+      return () => {
         document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("keydown", handleKeyDown);
+      };
     }
   }, [isOpen]);
 
@@ -58,132 +67,58 @@ export function ColumnVisibilityMenu({
   const visibleCount = columns.filter((c) => c.visible).length;
 
   return (
-    <div
-      ref={menuRef}
-      style={{ position: "relative", display: "inline-block" }}
-    >
+    <div ref={menuRef} className="relative inline-block">
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        style={{
-          background: "#09131f",
-          border: "1px solid #1e3a52",
-          borderRadius: 6,
-          padding: "8px 12px",
-          color: "#a8c8e8",
-          fontSize: "0.875rem",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-          transition: "all 0.2s ease",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = "#0d1e30";
-          e.currentTarget.style.borderColor = "#457b9d";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = "#09131f";
-          e.currentTarget.style.borderColor = "#1e3a52";
-        }}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        aria-label="Customize visible columns"
         title="Customize visible columns"
+        className="flex items-center gap-1.5 rounded-md border border-border bg-surface-base px-3 py-2 text-sm text-text-primary transition-all hover:bg-surface-elevated hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
-        <span style={{ fontSize: "1rem" }}>⚙️</span>
-        <span
-          style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.75rem" }}
-        >
+        <span className="text-base" aria-hidden="true">⚙️</span>
+        <span className="font-label text-xs">
           {visibleCount}/{columns.length}
         </span>
       </button>
 
       {isOpen && (
         <div
-          style={{
-            position: "absolute",
-            top: "calc(100% + 4px)",
-            right: 0,
-            background: "#060d18",
-            border: "1px solid #1e3a52",
-            borderRadius: 8,
-            padding: 12,
-            boxShadow: "0 8px 16px rgba(0, 0, 0, 0.4)",
-            zIndex: 1000,
-            minWidth: 220,
-          }}
+          role="menu"
+          className="absolute right-0 top-[calc(100%+4px)] z-50 min-w-[220px] rounded-lg border border-border bg-surface-card p-3 shadow-lg"
         >
-          <div
-            style={{
-              fontSize: 9,
-              fontFamily: "'DM Mono', monospace",
-              color: "#457b9d",
-              textTransform: "uppercase",
-              letterSpacing: 1.5,
-              fontWeight: 600,
-              marginBottom: 8,
-              paddingBottom: 8,
-              borderBottom: "1px solid #132030",
-            }}
-          >
+          <div className="mb-2 border-b border-border pb-2 font-label text-[9px] font-semibold uppercase tracking-widest text-text-muted">
             Column visibility
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 6,
-              marginBottom: 12,
-            }}
-          >
+          <div className="mb-3 flex flex-col gap-1.5">
             {columns.map((col) => (
               <label
                 key={col.id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  cursor: col.core ? "not-allowed" : "pointer",
-                  opacity: col.core ? 0.5 : 1,
-                  padding: "4px 6px",
-                  borderRadius: 4,
-                  transition: "background 0.15s",
-                }}
-                onMouseEnter={(e) => {
-                  if (!col.core) e.currentTarget.style.background = "#0d1e30";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent";
-                }}
+                className={`flex items-center gap-2 rounded px-1.5 py-1 transition-colors ${
+                  col.core
+                    ? "cursor-not-allowed opacity-50"
+                    : "cursor-pointer hover:bg-surface-elevated"
+                }`}
               >
                 <input
                   type="checkbox"
                   checked={col.visible}
                   disabled={col.core}
                   onChange={() => handleToggle(col.id)}
-                  style={{
-                    width: 16,
-                    height: 16,
-                    cursor: col.core ? "not-allowed" : "pointer",
-                    accentColor: "#457b9d",
-                  }}
+                  className="h-4 w-4 accent-primary disabled:cursor-not-allowed"
                 />
                 <span
-                  style={{
-                    fontSize: "0.8125rem",
-                    color: col.visible ? "#e8f4f8" : "#6b8aad",
-                    fontWeight: col.visible ? 500 : 400,
-                  }}
+                  className={`text-[0.8125rem] ${
+                    col.visible
+                      ? "font-medium text-text-primary"
+                      : "text-text-secondary"
+                  }`}
                 >
                   {col.label}
                   {col.core && (
-                    <span
-                      style={{
-                        marginLeft: 6,
-                        fontSize: "0.625rem",
-                        color: "#457b9d",
-                        textTransform: "uppercase",
-                        letterSpacing: 0.5,
-                      }}
-                    >
+                    <span className="ml-1.5 text-[0.625rem] uppercase tracking-wide text-text-muted">
                       (core)
                     </span>
                   )}
@@ -192,61 +127,18 @@ export function ColumnVisibilityMenu({
             ))}
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              gap: 6,
-              paddingTop: 8,
-              borderTop: "1px solid #132030",
-            }}
-          >
+          <div className="flex gap-1.5 border-t border-border pt-2">
             <button
+              type="button"
               onClick={handleShowCore}
-              style={{
-                flex: 1,
-                background: "#09131f",
-                border: "1px solid #1e3a52",
-                borderRadius: 4,
-                padding: "6px 8px",
-                color: "#a8c8e8",
-                fontSize: "0.75rem",
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-                fontWeight: 500,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#0d1e30";
-                e.currentTarget.style.borderColor = "#457b9d";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "#09131f";
-                e.currentTarget.style.borderColor = "#1e3a52";
-              }}
+              className="flex-1 rounded border border-border bg-surface-base px-2 py-1.5 text-xs font-medium text-text-primary transition-all hover:bg-surface-elevated hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               Core only
             </button>
             <button
+              type="button"
               onClick={handleShowAll}
-              style={{
-                flex: 1,
-                background: "#09131f",
-                border: "1px solid #1e3a52",
-                borderRadius: 4,
-                padding: "6px 8px",
-                color: "#a8c8e8",
-                fontSize: "0.75rem",
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-                fontWeight: 500,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#0d1e30";
-                e.currentTarget.style.borderColor = "#457b9d";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "#09131f";
-                e.currentTarget.style.borderColor = "#1e3a52";
-              }}
+              className="flex-1 rounded border border-border bg-surface-base px-2 py-1.5 text-xs font-medium text-text-primary transition-all hover:bg-surface-elevated hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               Show all
             </button>

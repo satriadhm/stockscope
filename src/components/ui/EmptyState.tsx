@@ -53,7 +53,7 @@ export function EmptyState(props: EmptyStateProps) {
         justify-center py-16 px-6
         text-center animate-fade-in
       ">
-        <span className="text-5xl mb-4">
+        <span className="text-5xl mb-4" aria-hidden="true">
           {state.icon}
         </span>
         <h3 className="
@@ -90,7 +90,7 @@ export function EmptyState(props: EmptyStateProps) {
         justify-center py-16 px-6
         text-center animate-fade-in
       ">
-        <div className="material-symbols-outlined text-5xl mb-4 text-text-secondary">
+        <div className="material-symbols-outlined text-5xl mb-4 text-text-secondary" aria-hidden="true">
           {icon}
         </div>
         <h3 className="

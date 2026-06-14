@@ -6,86 +6,34 @@ interface ViewToggleProps {
 }
 
 export function ViewToggle({ view, onChange }: ViewToggleProps) {
-  const buttonStyle = (isActive: boolean) => ({
-    padding: "8px 12px",
-    background: isActive ? "#0d1e30" : "#09131f",
-    border: "1px solid #1e3a52",
-    color: isActive ? "#a8d8ea" : "#6b8aad",
-    fontSize: "0.875rem",
-    cursor: "pointer",
-    transition: "all 0.2s ease",
-    display: "flex",
-    alignItems: "center",
-    gap: 6,
-    fontWeight: isActive ? 600 : 400,
-  });
+  const buttonClass = (isActive: boolean) =>
+    `flex items-center gap-1.5 px-3 py-2 text-sm border border-border transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+      isActive
+        ? "bg-surface-elevated text-text-primary font-semibold"
+        : "bg-surface-base text-text-secondary font-normal hover:bg-surface-card hover:text-text-primary"
+    }`;
 
   return (
-    <div
-      style={{
-        display: "flex",
-        borderRadius: 6,
-        overflow: "hidden",
-        border: "1px solid #1e3a52",
-      }}
-    >
+    <div className="flex rounded-md overflow-hidden border border-border">
       <button
+        type="button"
         onClick={() => onChange("table")}
-        style={{
-          ...buttonStyle(view === "table"),
-          borderRight: "none",
-          borderTopLeftRadius: 6,
-          borderBottomLeftRadius: 6,
-        }}
-        onMouseEnter={(e) => {
-          if (view !== "table") {
-            e.currentTarget.style.background = "#0a1520";
-            e.currentTarget.style.color = "#a8c8e8";
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (view !== "table") {
-            e.currentTarget.style.background = "#09131f";
-            e.currentTarget.style.color = "#6b8aad";
-          }
-        }}
-        title="Table view"
+        aria-pressed={view === "table"}
+        aria-label="Table view"
+        className={`${buttonClass(view === "table")} border-r-0 rounded-l-md`}
       >
-        <span style={{ fontSize: "1rem" }}>☰</span>
-        <span
-          style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.75rem" }}
-        >
-          Table
-        </span>
+        <span className="text-base" aria-hidden="true">☰</span>
+        <span className="font-label text-xs">Table</span>
       </button>
       <button
+        type="button"
         onClick={() => onChange("cards")}
-        style={{
-          ...buttonStyle(view === "cards"),
-          borderLeft: "none",
-          borderTopRightRadius: 6,
-          borderBottomRightRadius: 6,
-        }}
-        onMouseEnter={(e) => {
-          if (view !== "cards") {
-            e.currentTarget.style.background = "#0a1520";
-            e.currentTarget.style.color = "#a8c8e8";
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (view !== "cards") {
-            e.currentTarget.style.background = "#09131f";
-            e.currentTarget.style.color = "#6b8aad";
-          }
-        }}
-        title="Card view"
+        aria-pressed={view === "cards"}
+        aria-label="Card view"
+        className={`${buttonClass(view === "cards")} border-l-0 rounded-r-md`}
       >
-        <span style={{ fontSize: "1rem" }}>▦</span>
-        <span
-          style={{ fontFamily: "'DM Mono', monospace", fontSize: "0.75rem" }}
-        >
-          Cards
-        </span>
+        <span className="text-base" aria-hidden="true">▦</span>
+        <span className="font-label text-xs">Cards</span>
       </button>
     </div>
   );

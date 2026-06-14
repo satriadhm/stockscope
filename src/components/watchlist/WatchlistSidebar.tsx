@@ -139,7 +139,7 @@ export function WatchlistSidebar({
         <div className="mx-4 mt-3 flex items-center gap-2 px-3 py-2 bg-bear-bg border border-bear/30 rounded-lg text-bear text-xs">
           <AlertCircle className="w-3.5 h-3.5 shrink-0" />
           <span className="flex-1">{inlineError}</span>
-          <button onClick={() => setInlineError(null)}>
+          <button onClick={() => setInlineError(null)} aria-label="Dismiss error">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -222,6 +222,7 @@ export function WatchlistSidebar({
                     onClick={(e) => handleDelete(watchlist.id, e)}
                     className="p-1 text-text-muted hover:text-bear transition-colors flex-shrink-0"
                     title="Delete watchlist"
+                    aria-label={`Delete watchlist ${watchlist.name}`}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

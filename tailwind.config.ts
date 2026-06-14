@@ -10,11 +10,26 @@ const config: Config = {
     extend: {
       colors: {
         surface: {
+          DEFAULT:  '#09131f',
           base:     '#060d18',
           card:     '#09131f',
           elevated: '#132030',
           input:    '#09131f',
         },
+        // Semantic role tokens used throughout the components (Material-style
+        // vocabulary). These were referenced but never defined, so the classes
+        // silently emitted no CSS — map them onto the existing palette.
+        primary: {
+          DEFAULT: '#2a9d8f',
+          hover:   '#228579',
+        },
+        tertiary: '#e9c46a',
+        error:    '#e76f51',
+        'on-primary':         '#04231f',
+        'on-tertiary':        '#3e2900',
+        'on-error':           '#3f0909',
+        'on-surface':         '#e8f4f8',
+        'on-surface-variant': '#a8c8e8',
         border: {
           DEFAULT: '#1e3a52',
           subtle:  '#132030',

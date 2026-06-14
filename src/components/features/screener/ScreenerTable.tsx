@@ -134,7 +134,7 @@ export function ScreenerTable({
   return (
     <div className="w-full flex flex-col h-full">
       <div className="w-full overflow-x-auto flex-1 border border-border-subtle rounded-t-xl bg-surface-card">
-        <table {...getTableProps()} className="w-full text-left min-w-[600px]">
+        <table {...getTableProps()} className="w-full text-left min-w-full md:min-w-[600px]">
           <thead className="bg-surface-elevated border-b border-border-subtle sticky top-0 z-10">
             {headerGroups.map(hg => {
               const { key: hgKey, ...hgProps } = hg.getHeaderGroupProps();
@@ -146,16 +146,24 @@ export function ScreenerTable({
                   <th
                     key={colKey}
                     {...colProps}
-                    className="p-3 font-label text-xs uppercase tracking-widest text-on-surface-variant cursor-pointer hover:bg-white/5 transition-colors whitespace-nowrap"
+                    aria-sort={column.isSorted ? (column.isSortedDesc ? "descending" : "ascending") : "none"}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        if (e.key === " ") e.preventDefault();
+                        column.toggleSortBy?.(!column.isSortedDesc);
+                      }
+                    }}
+                    className="p-3 font-label text-xs uppercase tracking-widest text-on-surface-variant cursor-pointer hover:bg-white/5 transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   >
                     <div className="flex items-center gap-2">
                        {column.render("Header")}
                        {column.isSorted ? (
-                        <span className="material-symbols-outlined text-[14px]">
+                        <span className="material-symbols-outlined text-[14px]" aria-hidden="true">
                           {column.isSortedDesc ? "arrow_downward" : "arrow_upward"}
                         </span>
                        ) : (
-                         <span className="material-symbols-outlined text-[14px] opacity-20 hover:opacity-100">
+                         <span className="material-symbols-outlined text-[14px] opacity-20 hover:opacity-100" aria-hidden="true">
                           unfold_more
                          </span>
                        )}
@@ -175,8 +183,16 @@ export function ScreenerTable({
                 <tr
                   key={rowKey}
                   {...rowProps}
-                  className="border-b border-border-subtle/30 hover:bg-white/5 transition-colors cursor-pointer group"
+                  className="border-b border-border-subtle/30 hover:bg-white/5 transition-colors cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => onStockClick(row.original)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      if (e.key === " ") e.preventDefault();
+                      onStockClick(row.original);
+                    }
+                  }}
                 >
                   {row.cells.map(cell => {
                     const { key: cellKey, ...cellProps } = cell.getCellProps();
