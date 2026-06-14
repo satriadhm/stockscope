@@ -5,8 +5,11 @@
  * Sprint 4, Task SP4-04: Sessions & Identity Stitching
  */
 
+import { getServerSession } from 'next-auth'
 import { NextRequest, NextResponse } from 'next/server'
+import { authOptions } from '@/lib/auth/config'
 import { prisma } from '@/lib/prisma'
+import { requireAdmin, requireCron } from '@/lib/auth/guards'
 
 /**
  * POST /api/sessions/aggregate
@@ -16,6 +19,8 @@ import { prisma } from '@/lib/prisma'
  *   - date: ISO date to process (default: yesterday)
  */
 export async function POST(request: NextRequest) {
+  const cronError = requireCron(request)
+  if (cronError) return cronError
   try {
     const { searchParams } = new URL(request.url)
     const dateParam = searchParams.get('date')
@@ -153,11 +158,18 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
-    const { userId, anonymousId } = await request.json()
+    // A user may only stitch anonymous activity onto their OWN account.
+    const session = await getServerSession(authOptions)
+    const userId = (session?.user as { id?: string } | undefined)?.id
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
-    if (!userId || !anonymousId) {
+    const { anonymousId } = await request.json()
+
+    if (!anonymousId) {
       return NextResponse.json(
-        { error: 'Missing userId or anonymousId' },
+        { error: 'Missing anonymousId' },
         { status: 400 }
       )
     }
@@ -218,9 +230,11 @@ export async function PUT(request: NextRequest) {
  *   - limit: Max records (default: 100)
  */
 export async function GET(request: NextRequest) {
+  const { error: adminError } = await requireAdmin()
+  if (adminError) return adminError
   try {
     const { searchParams } = new URL(request.url)
-    
+
     const userId = searchParams.get('userId')
     const anonymousId = searchParams.get('anonymousId')
     const startDate = searchParams.get('startDate')

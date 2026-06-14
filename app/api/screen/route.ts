@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getDB } from "@/lib/mongodb";
 import { enrichStocks } from "@/lib/services/enrichmentService";
+import { escapeRegex } from "@/lib/utils/sanitize";
 
 export async function GET(request: NextRequest) {
   try {
@@ -46,7 +47,8 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      const regex = { $regex: search, $options: "i" };
+      // Escape user input and cap length to prevent regex (ReDoS) injection.
+      const regex = { $regex: escapeRegex(search), $options: "i" };
       matchStage.$or = [{ code: regex }, { issuer: regex }];
     }
 

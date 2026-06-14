@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireAdmin, requireCron } from '@/lib/auth/guards'
 
 // Funnel definitions
 const FUNNELS = {
@@ -65,6 +66,8 @@ const FUNNELS = {
  *   - funnel: Specific funnel to calculate (default: all)
  */
 export async function POST(request: NextRequest) {
+  const cronError = requireCron(request)
+  if (cronError) return cronError
   try {
     const { searchParams } = new URL(request.url)
     const dateParam = searchParams.get('date')
@@ -306,9 +309,11 @@ async function getTopUTMSources(startDate: Date, endDate: Date, limit: number) {
  *   - utmSource: Filter by UTM source
  */
 export async function GET(request: NextRequest) {
+  const { error: adminError } = await requireAdmin()
+  if (adminError) return adminError
   try {
     const { searchParams } = new URL(request.url)
-    
+
     const funnelName = searchParams.get('funnelName')
     const startDate = searchParams.get('startDate')
     const endDate = searchParams.get('endDate')
