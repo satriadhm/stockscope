@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireAdmin } from '@/lib/auth/guards'
 
 // Event Taxonomy V1 - Allowed event names
 const VALID_EVENT_NAMES = [
@@ -307,9 +308,9 @@ export async function PUT(request: NextRequest) {
  *   - limit: Max records (default: 100, max: 1000)
  */
 export async function GET(request: NextRequest) {
+  const { error: adminError } = await requireAdmin()
+  if (adminError) return adminError
   try {
-    // Admin-only endpoint (basic auth check)
-    // TODO: Add proper admin authentication
     const { searchParams } = new URL(request.url)
     
     const eventName = searchParams.get('eventName')

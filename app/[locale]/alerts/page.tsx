@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { Bell, Trash2, Plus, X, AlertCircle, CheckCircle, Clock } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { AppShell } from "@/components/features/integration/AppShell";
 
 interface PriceAlert {
@@ -149,12 +150,12 @@ export default function AlertsPage() {
           <p className="text-text-secondary text-sm max-w-sm mx-auto">
             Price alerts are available on the Premium and Pro plans. Upgrade to set up to 10 alerts.
           </p>
-          <a
+          <Link
             href="/upgrade"
             className="inline-block px-6 py-2 bg-brand text-white rounded-lg font-medium text-sm hover:opacity-90 transition-opacity"
           >
             Upgrade to Premium
-          </a>
+          </Link>
         </section>
       </AppShell>
     );

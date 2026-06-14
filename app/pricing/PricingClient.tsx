@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { Check, Sparkles, TrendingUp, Zap } from 'lucide-react';
 import { usePricingExperiment, useCTAExperiment, useLayoutExperiment } from '@/hooks/use-experiments';
 import { trackExperimentEvent } from '@/hooks/use-experiments';
@@ -72,7 +72,6 @@ export default function PricingClient() {
         <div className="flex flex-col gap-3">
           <button
             onClick={() => {
-              const { signIn } = require('next-auth/react');
               signIn('google', { callbackUrl: '/pricing' });
             }}
             className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"

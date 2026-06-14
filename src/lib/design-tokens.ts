@@ -4,8 +4,6 @@
  *
  * Philosophy: "The Abyss" - Deep slates and blacks for eye strain reduction
  * Primary: Emerald (#4edea3) for positive indicators and primary actions
- *
- * @see design-screener-layout.html for complete specification
  */
 
 export const terminalColors = {

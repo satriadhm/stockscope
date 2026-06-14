@@ -122,6 +122,44 @@ export const stockQueries = {
     const database = await getDB();
     return database.collection("stocks").countDocuments(filter);
   },
+
+  /**
+   * Bulk-update live price fields for the given stocks. Only price-feed fields
+   * are touched; ownership/concentration fields are left untouched.
+   */
+  async bulkUpdatePrices(
+    updates: Array<{
+      code: string;
+      lastPrice: number;
+      volume?: number;
+      marketCap?: number;
+    }>,
+  ) {
+    if (updates.length === 0) return;
+    const database = await getDB();
+    const ops = updates.map((u) => {
+      const set: Record<string, unknown> = {
+        lastPrice: u.lastPrice,
+        priceUpdatedAt: new Date(),
+      };
+      if (typeof u.volume === "number") set.volume = u.volume;
+      if (typeof u.marketCap === "number") set.marketCap = u.marketCap;
+      return {
+        updateOne: {
+          filter: { code: u.code },
+          update: { $set: set },
+        },
+      };
+    });
+    await database.collection("stocks").bulkWrite(ops, { ordered: false });
+  },
+
+  /** Return all distinct stock codes (used to drive the price refresh loop). */
+  async allCodes(): Promise<string[]> {
+    const database = await getDB();
+    const codes = await database.collection("stocks").distinct("code");
+    return codes.filter((c): c is string => typeof c === "string");
+  },
 };
 
 /**

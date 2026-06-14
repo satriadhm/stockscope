@@ -6,27 +6,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/config';
 import prisma from '@/lib/prisma';
+import { isAdminEmail } from '@/lib/auth/guards';
 
 // =============================================================================
 // ADMIN AUTHORIZATION
 // =============================================================================
 
-async function isAdmin(email: string): Promise<boolean> {
-  // TODO: Add isAdmin field to User model
-  // For now, check email domain
-  return email.endsWith('@stockscope.com');
-}
-
-async function requireAdmin(req: NextRequest) {
+async function requireAdmin() {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user?.email) {
     return { authorized: false, error: 'Unauthorized', status: 401 };
   }
 
-  const admin = await isAdmin(session.user.email);
-  
-  if (!admin) {
+  if (!isAdminEmail(session.user.email)) {
     return { authorized: false, error: 'Forbidden: Admin access required', status: 403 };
   }
 
@@ -38,7 +31,7 @@ async function requireAdmin(req: NextRequest) {
 // =============================================================================
 
 export async function GET(req: NextRequest) {
-  const auth = await requireAdmin(req);
+  const auth = await requireAdmin();
   if (!auth.authorized) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }

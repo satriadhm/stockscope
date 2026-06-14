@@ -70,13 +70,22 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Bad order_id" }, { status: 400 });
       }
 
-      await upgradePlan(userId);
+      try {
+        await upgradePlan(userId);
+      } catch (err) {
+        // The payment is genuine but the upgrade failed (e.g. DB blip).
+        // Return 5xx so Midtrans retries instead of dropping the upgrade.
+        console.error("[payment/webhook] upgradePlan failed", err);
+        return NextResponse.json(
+          { error: "Failed to apply upgrade" },
+          { status: 500 },
+        );
+      }
     }
 
-    // Always return 200 to Midtrans — it will retry if it gets a non-2xx response
     return NextResponse.json({ ok: true });
   } catch {
-    // Still return 200 to prevent Midtrans from retrying a broken payload
-    return NextResponse.json({ ok: true });
+    // Malformed payload — 400 so it isn't retried as a transient failure.
+    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 }

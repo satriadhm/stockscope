@@ -202,7 +202,7 @@ export default function ApiKeysManager({ initialKeys, userPlan }: ApiKeysManager
             <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-4 mb-4">
               <h4 className="font-semibold text-slate-900 dark:text-white mb-2">Quick Start</h4>
               <code className="text-xs text-slate-700 dark:text-slate-300 block">
-                curl -H "X-Api-Key: {createdKey.key}" \<br />
+                curl -H {"\"X-Api-Key: "}{createdKey.key}{"\""} \<br />
                 &nbsp;&nbsp;https://stockscope.app/api/v1/stocks
               </code>
             </div>
@@ -211,7 +211,7 @@ export default function ApiKeysManager({ initialKeys, userPlan }: ApiKeysManager
               onClick={() => setCreatedKey(null)}
               className="w-full px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg font-semibold hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
             >
-              I've Saved My Key
+              I&apos;ve Saved My Key
             </button>
           </div>
         </div>

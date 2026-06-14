@@ -63,7 +63,10 @@ export function useScreenerState(): UseScreenerStateReturn {
   useEffect(() => {
     let cancelled = false;
 
+    // Intentionally reset fetch status when the query parameters change.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setError(null);
 
     fetchScreenerResults({

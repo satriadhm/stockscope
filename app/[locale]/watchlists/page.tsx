@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { WatchlistSidebar, WatchlistDetail, CreateWatchlistModal, AddStockModal } from '@/components/watchlist';
 
 export default function WatchlistsPage() {
@@ -42,13 +42,13 @@ export default function WatchlistsPage() {
           <p className="text-text-secondary mb-6">
             Create watchlists to track your favorite JKSE stocks and organize your research.
           </p>
-          <a
-            href="/api/auth/signin"
+          <button
+            onClick={() => signIn('google')}
             className="inline-block px-6 py-3 bg-brand hover:opacity-90
               text-white rounded-lg transition-opacity font-medium"
           >
             Sign In with Google
-          </a>
+          </button>
         </div>
       </div>
     );

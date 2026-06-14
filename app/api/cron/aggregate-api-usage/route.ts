@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireCron } from '@/lib/auth/guards';
 
 // =============================================================================
 // CRON: Aggregate API Usage Hourly
@@ -15,14 +16,9 @@ import { prisma } from '@/lib/prisma';
 // 3. Health check for metrics pipeline
 
 export async function GET(req: NextRequest) {
+  const cronError = requireCron(req);
+  if (cronError) return cronError;
   try {
-    // Verify cron secret (Vercel Cron authentication)
-    const authHeader = req.headers.get('authorization');
-    const cronSecret = process.env.CRON_SECRET;
-
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     const startTime = Date.now();
 
@@ -158,15 +154,9 @@ async function recalculateAverages(hour: Date): Promise<void> {
 // =============================================================================
 
 export async function DELETE(req: NextRequest) {
+  const cronError = requireCron(req);
+  if (cronError) return cronError;
   try {
-    // Verify cron secret
-    const authHeader = req.headers.get('authorization');
-    const cronSecret = process.env.CRON_SECRET;
-
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     // Delete usage data older than 90 days
     const retentionDays = 90;
     const cutoffDate = new Date();
